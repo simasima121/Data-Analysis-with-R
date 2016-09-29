@@ -337,129 +337,321 @@ with(subset(pf, age <= 70), cor.test(age, friend_count, method = 'spearman'))
 ***
 
 ## Create Scatterplots
-Notes:
+Notes: Create a scatterplot of likes_received (y) vs. www_likes_received (x). Use any of the techniques that you've learned so far to modify the plot.
 
-```{r}
+```{r Create Scatterplots }
+names(pf)
 
+ggplot(aes(www_likes_received, likes_received), data = pf) +
+  geom_point()
 ```
 
 ***
 
 ### Strong Correlations
-Notes:
+Notes: **To determine good x and y limits for our axis, we can look at the 95th percentile using the Quantile command**.
+
+The correlation coefficient is invariant under a linear transformation of either X or Y, and the slope of the regression line when both X and Y have been transformed to z-scores is the correlation coefficient. 
+
+It's important to note that we may not always be interested in the bulk of the data. Sometimes, the outliers ARE of interest, and it's important that we understand their values and why they appear in the data set.
+
+**To add a line of best fit, use geom_smooth**.
 
 ```{r Strong Correlations}
-
+# To add a line of best fit, use geom_smooth
+ggplot(aes(www_likes_received, likes_received), data = pf) +
+  geom_point(alpha = 0.1) +
+  coord_cartesian(xlim = c(0, quantile(pf$www_likes_received, 0.95)), 
+                  ylim = c(0, quantile(pf$likes_received, 0.95))) +
+  geom_smooth(method = 'lm', color = 'red')
 ```
 
-What's the correlation betwen the two variables? Include the top 5% of values for the variable in the calculation and round to 3 decimal places.
+#### What's the correlation betwen the two variables? Include the top 5% of values for the variable in the calculation and round to 3 decimal places.
 
 ```{r Correlation Calcuation}
-
+# Correlation between the 2 variables
+with(pf, cor.test(www_likes_received, likes_received, method = 'pearson'))
 ```
 
-Response:
+Response: 0.948
 
 ***
 
 ### Moira on Correlation
-Notes:
+Notes: Measure correlation coefficient to quantify how correlated variables are.
 
+This is important because data is correlated e.g. How many status updates in a month is correlated with how many times they logged in that month or how many friends they have or how many photos they have. They measure how engaged someone is.
+
+When you're working on a problem and there's some kind of regression or modelling something, some of these variables go into the regression. **One of the assumptions of the regression is that these variables are independant of each other** so if any 2 are 2 highly correlated with each other, it's difficult to tell which ones are actually driving the phenomenon. 
+
+So measuring the correlation helps you determine which variables you want to throw into the regression and which ones you don't.
+
+[Assumptions of Linear Regression](https://en.wikipedia.org/wiki/Linear_regression#Assumptions)
 ***
 
 ### More Caution with Correlation
-Notes:
+Notes: Plotting data is the best way to understand it and can lead you to key insights. Correlation is very useful too.
+
+Argument matching (when not providing them by name) in R is a bit complex.
+
+First, arguments (or parameters) can be matched by name. If a parameter matches exactly, it is "removed" from the argument list and the remaining unnamed arguments are matched in the order that they are listed in the function definition.
+
+R does the following to match arguments:
+
+1. checks for exact match of named argument
+2. checks for a partial match of the argument
+3. checks for a positional match
+
+If R does not find a match for a parameter, it typically throws an "unused" parameter error.
+
+Type **str(functionName)** to find the order of the parameters and learn more about the parameters of an R function. 
+
+The example covered in the next few videos comes from a practice problem in [Weisberg, S. (2005). Applied Linear Regression, 3rd edition. New York: Wiley](http://users.stat.umn.edu/~sandy/alr3ed/website/).
+
+**The dataset we're using is the Mitchell dataset from the alr3 package.**
 
 ```{r More Caution With Correlation}
 install.packages('alr3')
 library(alr3)
+
+# Loading the dataset. 
+data(Mitchell)
+?Mitchell
 ```
 
-Create your plot!
+#### Create a scatterplot of temperature (Temp) vs. months (Month).
 
 ```{r Temp vs Month}
+summary(Mitchell)
 
+# Creating scatter plot
+ggplot(aes(Month, Temp), data = Mitchell) + 
+  geom_point()
 ```
 
 ***
 
 ### Noisy Scatterplots
 a. Take a guess for the correlation coefficient for the scatterplot.
+0
 
 b. What is the actual correlation of the two variables?
 (Round to the thousandths place)
+0.0575
 
 ```{r Noisy Scatterplots}
-
+with(Mitchell, cor.test(Month, Temp, method = 'pearson'))
 ```
 
 ***
 
 ### Making Sense of Data
-Notes:
+Notes: We know the months variable is very discreet from Jan to Dec and they repeat over again.
+
+As of ggplot 2.0, you will need to use a **scale_x_continuous()** layer instead of **scale_x_discrete()**, since the Month is considered a numeric variable.
 
 ```{r Making Sense of Data}
+# Find data set range
+range(Mitchell$Month)
 
+# Plotting the data with discrete units
+ggplot(aes(Month, Temp), data = Mitchell) + 
+  geom_point() +
+  scale_x_continuous(breaks = seq(0,203,12))
 ```
 
 ***
 
 ### A New Perspective
 
-What do you notice?
-Response:
+The **cor** and **cor.test** functions determine the strength of a linear relationship, but they may miss other relationships in the data.
 
-Watch the solution video and check out the Instructor Notes!
-Notes:
+#### What do you notice?
+Response: It is cyclical every 12 months, like a sine or cosine graph.
+
+#### Watch the solution video and check out the Instructor Notes!
+Notes: This is a great example of getting context on your data. There seemed to be little correlation when doing the calculaton however, when looking at the data, you can easily see a correlation.
+
+You could also get perspective on this data by overlaying each year's data on top of each other, giving a clear, generally sinusoidal graph. You can do this by using the R's modulus operator **%%** in your code. Try running the code below!
+
+```{r A New Perspective}
+# Overlaying each years data on top of each other
+ggplot(aes(x = (Month %% 12), y = Temp), data = Mitchell) + 
+  geom_point() 
+```
+
+**Data Visualisation Pioneers**:
+
+* [John Tukey](https://en.wikipedia.org/wiki/John_Tukey)
+* [William Playfair](https://en.wikipedia.org/wiki/William_Playfair)
+* [William Playfair and the Psychology of Graphs](http://www.psych.utoronto.ca/users/spence/Spence%20(2006).pdf)
+
+**Proportion and scale of your graphics do matter. The nature of the data should suggest the shape of the graphic, otherwise you should tend to have a graphic that is 50% wider than tall.**
+
+There are other measures of associations that can detect this. The **dcor.ttest()** function in the **energy** package implements a non-parametric test of the independence of two variables. While the Mitchell soil dataset is too coarse to identify a significant dependency between "Month" and "Temp", we can see the difference between **dcor.ttest** and **cor.test** through other examples, like the following:
+
+```{r}
+install.packages('energy')
+library(energy)
+x <- seq(0, 4*pi, pi/20)
+y <- cos(x)
+qplot(x = x, y = y)
+dcor.ttest(x, y)
+```
+
 
 ***
 
 ### Understanding Noise: Age to Age Months
-Notes:
+Notes: As can be seen in the graph below, there is a lot of random noise (the mean friend count rises and falls over each age). **Noise like this reflects that we just have a sample from the data generating process and so the estimated mean friend count for each age is the true mean plus some noise.**
 
 ```{r Understanding Noise: Age to Age Months}
+ggplot(aes(age, friend_count_mean), data = pf.fc_by_age) +
+  geom_line()
 
+head(pf.fc_by_age, 10)
 ```
+
+#### Create an age_with_months variable
+
+Create a new variable, **age_with_months**, in the **pf** data frame. Be sure to save the variable in the data frame rather than creating a separate, stand-alone variable. You will need to use the variables **age** and **dob_month** to create the variable **age_with_months**.
+
+The variable **age_with_months** in the data frame **pf** should be a decimal value. For example, the value of **age_with_months** for a 33 year old person born in March would be 33.75 since there are nine months from March to the end of the year. Similarly, someone who was 6 years and 6 months old would have an **age_with_months** value of 6.5.
+
+Assume the reference date for calculating age is December 31, 2013 and that the **age** variable gives age in years at the end of 2013.
+
+```{r}
+# Create variable with age in months instead of years. Someone born in March is older than someone in september so 12 - month.
+pf$age_with_months <- pf$age + ((12-pf$dob_month)/12)
+head(pf)
+```
+
+##### Alternate Solutions
+
+```{r }
+pf$age_with_months <- pf$age + (1 - pf$dob_month / 12) 
+
+pf$age_with_months <- with(pf, age + (1 - dob_month / 12))
+```
+
 
 ***
 
 ### Age with Months Means
 
-```{r Age with Months Means}
+**Another warning:** Version 0.4.0 of dplyr has a bug when using the median function on the summarize layer, depending on the nature of the data being summarized. You may need to cast the data as a numeric (float) type to get the expected results, e.g. **median(as.numeric(var))**.
 
+#### Programming Assignment
+
+Create a new data frame called **pf.fc_by_age_months** that contains the mean friend count, the median friend count, and the number of users in each group of **age_with_months**. The rows of the data framed should be arranged in increasing order by the **age_with_months** variable.
+
+```{r Age with Months Means}
+head(pf$age_with_months)
+
+age_months <- group_by(pf, age_with_months)
+
+# Group dataframe by month. We need to pass in a datafrmae/grouping and then save it into a new variable which is passed into the next function.
+pf.fc_by_age_months <- summarise(age_months,
+                                 friend_count_mean = mean(friend_count),
+                                 friend_count_median = median(friend_count),
+                                 n = n())
+
+# Arrange by age_with_months
+pf.fc_by_age_months <- arrange(pf.fc_by_age_months)
+
+head(pf.fc_by_age_months)
 ```
 
-Programming Assignment
-```{r Programming Assignment}
+#### Alternate Solution
 
+**Hint 1**: Use the **group_by()**, **summarise()**, and **arrange()** functions in the dplyr package to split the data frame by **age_with_month**. Make sure you arrange by the correct variable (it's not age anymore). 
+
+```{r Alternate Solution}
+library(dplyr)
+
+pf.fc_by_age_months <- pf %>%
+  group_by(age_with_months) %>%
+  summarise(friend_count_mean = mean(friend_count),
+            friend_count_median = median(friend_count),
+            n = n()) %>%
+  arrange(age_with_months)
+
+head(pf.fc_by_age_months)
 ```
 
 ***
 
 ### Noise in Conditional Means
 
-```{r Noise in Conditional Means}
+Create a new scatterplot showing **friend_count_mean** versus the new variable, **age_with_months**. 
 
+Be sure to use the correct data frame (the one you create in the last exercise) AND subset the data to investigate users with ages less than 71.
+
+```{r Noise in Conditional Means}
+ggplot(aes(age_with_months, friend_count_mean),
+       data = subset(pf.fc_by_age_months, age_with_months < 71)) +
+  geom_line()
 ```
 
 ***
 
 ### Smoothing Conditional Means
-Notes:
+Notes: We want to put the 2 plots below, side by side so we can look at them together. 
+
+By decreasing the size of our bins and increasing the number of bins, we have less data to estimate each conditional mean. 
+On the other hand, we could increase the size of our bins (e.g. age falls on multiple of 5). **Doing this estimates the mean more precisely but we could potentially miss important features of the age and friend count relationship.**
 
 ```{r Smoothing Conditional Means}
+# Age
+p1 <- ggplot(aes(age, friend_count_mean),
+       data = subset(pf.fc_by_age, age < 71)) +
+  geom_line() +
+  geom_smooth()
 
+# Age with months
+p2 <- ggplot(aes(age_with_months, friend_count_mean),
+       data = subset(pf.fc_by_age_months, age_with_months < 71)) +
+  geom_line() +
+  geom_smooth()
+
+# Age falls on mulitples of 5. We want to pass mean friend_count so pass summary to stat
+p3 <- ggplot(aes(round(age/5) * 5, friend_count),
+       data = subset(pf, age < 71)) +
+  geom_line(stat = 'summary', fun.y = mean)
+
+library(gridExtra)
+grid.arrange(p2,p1,p3, ncol=1)
 ```
+
+These 3 plots are an example of the **bias variance tradeoff**, and it's similar to the trade off we make when choosing the bin width in histograms. Analysts can better make this tradeoff by using a flexible statistical model to smooth our estimates of conditional means.
+
+By adding **geom_smooth** we can see a line of best fit (which misses key points like the peak at 69). This highlights that using models like **low S** or **smoothing spines** can be useful, but like any model, it can be subject to systematic errors, when the true proces generating our data isn't so consistent with the model itself.
+
+[Local Regression (LOESS)](http://simplystatistics.org/2014/02/13/loess-explained-in-a-gif/) explained visually on the [Simply Statistics](http://simplystatistics.org/) blog.
+
+The Details of [Loess and Lowess](http://en.wikipedia.org/wiki/Local_regression).
 
 ***
 
 ### Which Plot to Choose?
-Notes:
+Notes: **You don't have to choose!**. In EDA, we often create multiple visualisations and summaries of the same data, gleaning different incites from each.
 
 ***
 
 ### Analyzing Two Variables
-Reflection:
+Reflection: We covered scatter plots, conditional means and correlation coefficients. 
+
+* We learned how to explore the relationship between 2 variables. Our main visualisation tool was the scatterplot, but we also augmented the scatter plot with conditional summaries, like means.
+* We also learned about the benefits and the limitations of using correlation.
+* We also learned how correlation may affect your decisions over which variables to include in your final models.
+* We learned not to trust our interpretation of initial scatter plots like with the seasonal temp data.
+* We learned how to use jitter and transparency to reduce over plotting.
+* We learned how to use the dplyr library to create tables to have analysis done on them. 
+* We learnt the %>% operator which allows us to chain commands. 
+* We learned ggplot in much more depth. 
+* We learned that numerical data can give insight, graphs give richer insight but ultimately they are not perfect and we have think about what model we are using to fit the data in order to improve our understanding of the relationships between the variables.
+
+A deep dive into [Bivariate Data Analysis](http://dept.stat.lsa.umich.edu/~kshedden/Courses/Stat401/Notes/401-bivariate-slides.pdf).
 
 ***
 
