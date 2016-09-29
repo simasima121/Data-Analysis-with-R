@@ -411,7 +411,7 @@ The example covered in the next few videos comes from a practice problem in [Wei
 **The dataset we're using is the Mitchell dataset from the alr3 package.**
 
 ```{r More Caution With Correlation}
-install.packages('alr3')
+#install.packages('alr3')
 library(alr3)
 
 # Loading the dataset. 
@@ -491,7 +491,7 @@ ggplot(aes(x = (Month %% 12), y = Temp), data = Mitchell) +
 There are other measures of associations that can detect this. The **dcor.ttest()** function in the **energy** package implements a non-parametric test of the independence of two variables. While the Mitchell soil dataset is too coarse to identify a significant dependency between "Month" and "Temp", we can see the difference between **dcor.ttest** and **cor.test** through other examples, like the following:
 
 ```{r}
-install.packages('energy')
+#install.packages('energy')
 library(energy)
 x <- seq(0, 4*pi, pi/20)
 y <- cos(x)

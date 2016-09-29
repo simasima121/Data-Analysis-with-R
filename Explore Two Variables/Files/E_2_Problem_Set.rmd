@@ -1,0 +1,112 @@
+Lesson 3 Problem Set
+========================================================
+  
+***
+
+### price vs. x Quiz
+
+In this problem set, you'll continue to explore the diamonds data set.
+
+Your first task is to create a scatterplot of price vs x. using the ggplot syntax.
+```{r price vs. x}
+# You need to run these commands each time you launch RStudio to access the diamonds data set. RStudio won't remember which packages and data sets you loaded unless you change your preferences or save your workspace. 
+setwd("~/Desktop/Nanodegrees/Data Analyst/Task 4/Data Analysis with R/Explore Two Variables/Files/")
+library(ggplot2) # must load the ggplot package first 
+data(diamonds) # loads the diamonds data set since it comes with the ggplot package 
+summary(diamonds)
+
+ggplot(aes(price, x), data = diamonds) +
+  geom_point()
+```
+
+***
+
+### Diamonds Quiz
+
+####
+
+***
+
+### Diamonds Quiz
+
+####
+
+***
+
+### Diamonds Quiz
+
+####
+
+***
+
+### Diamonds Quiz
+
+####
+
+***
+
+### Diamonds Quiz
+
+####
+
+***
+
+### Diamonds Quiz
+
+####
+
+***
+
+### Diamonds Quiz
+
+####
+
+***
+
+### Diamonds Quiz
+
+####
+
+***
+
+### Diamonds Quiz
+
+####
+
+***
+
+### Diamonds Quiz
+
+####
+
+***
+
+### Diamonds Quiz
+
+####
+
+***
+
+### Diamonds Quiz
+
+####
+
+***
+
+### Diamonds Quiz
+
+####
+
+***
+
+### Diamonds Quiz
+
+####
+
+***
+
+### Diamonds Quiz
+
+####
+
+***
