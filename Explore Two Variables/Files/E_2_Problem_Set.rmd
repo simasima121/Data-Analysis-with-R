@@ -180,7 +180,7 @@ Adjust the transparency of the points and add a linear model to the plot. (Types
 
 [Stat_smooth and Geom_smooth are aliases of each other.](http://docs.ggplot2.org/current/geom_smooth.html)
 
-```{r price vs. volume Quiz}
+```{r Adjustments - price vs. volume Quiz}
 ggplot(aes(x = vol, y = price),
        data = subset(diamonds,
                      diamonds$vol < 800 & diamonds$vol > 0)) + 
@@ -276,10 +276,77 @@ If you’re feeling adventurous or want to try some data munging see if you can 
 In your investigation, examine pairs of variable and create 2-5 plots that make use of the techniques from Lesson 4.
 
 ```{r Gapminder Revisited Quiz}
+library(tidyr)
+library(dplyr)
+library(ggplot2)
+library(gridExtra)
+list.files()
+
+# Reading excel file into studio
+library('rio')
+gdp = import('indicatorwdigdp_percapita_growth.xlsx')
+invest = import('Investment.xlsx')
+
+# Tidying data. GDI stands for Gross Domestic Investment
+gdp = gather(gdp, "year", "GDP", 2:53)
+invest = gather(invest, "year", "GDI", 2:53)
+
+# Changing column names in both
+colnames(gdp) <- c("country","year","GDP")
+colnames(invest) <- c("country","year","GDI")
+
+# Merging datasets by year
+data <- merge(gdp, invest, by = c("country","year"))
+data <- filter(data, !is.na(data$GDI))
+data <- filter(data, !is.na(data$GDP))
+
+# Seeing the correlation
+with(data, cor.test(GDP, GDI))
+
+# Plotting a scatter plot
+ggplot(aes(x = GDI, y = GDP), data = data) +
+  geom_point(alpha = 0.2) +
+  geom_smooth()
+
+# Understanding how the mean and median of GDP and GDI varies with countries
+data.country_by_gdi <- data %>%
+  group_by(country) %>%
+  summarise(gdi_mean = mean(GDI),
+            gdi_median = median(GDI),
+            gdp_mean = mean(GDP),
+            gdp_median = median(GDP),
+            n = n()) %>%
+  arrange(country)
+
+p1 <- ggplot(aes(x = gdp_mean, y = gdi_mean),
+       data = data.country_by_gdi) +
+  geom_line()
+
+p2 <- ggplot(aes(x = gdp_median, y = gdi_median),
+       data = data.country_by_gdi) +
+  geom_line()
+
+grid.arrange(p1,p2, ncol = 1)
+
+# Plotting a more in depth scatter plot, with a line plot overlayed
+ggplot(aes(x = gdi_mean, y = gdp_mean), data = data.country_by_gdi) +
+  geom_point(alpha = 0.2) +
+  geom_line(stat = 'summary', fun.y = quantile, fun.args = list(probs = .1),
+            linetype = 2, color = 'red') + 
+  geom_smooth()
 
 ```
 
 
 #### The variable(s) you investigated and your observations (with any summary statistics). 
+I investigated the relationship between gdp growth and gdp investment.
+
+The correlation between GDP and GDI is 0.2257026.
+
+The First Scatter plot indicates that most of the GDI is between 0 to 40. Most of the GDP data is between -15 and +15. GDI seemingly has little influence on the GDP as the GDP has a lot of -ve and +ve growth regardless. There are also a few anomalies such as a GDI of 40 with a resulting GDP of 75 or a GDI of 120 and a GDP of 25.
+
+As can be seen in the second graph, the GDP and GDI means and medians vary greatly at each area.
+
+The overlapping scatterplot shows that the gdp and gdi means have a positive correlation.
 
 ***
