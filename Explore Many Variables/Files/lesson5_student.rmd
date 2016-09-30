@@ -2,36 +2,100 @@ Lesson 5
 ========================================================
 
 ### Multivariate Data
-Notes:
+Notes: In this lesson, we'll learn how to examine 3 or more variables at a time.
+
+```{r Multivariate Data}
+getwd()
+setwd("/Users/Sim/Desktop/Nanodegrees/Data Analyst/Task 4/Data Analysis with R/Explore Many Variables/Files/")
+list.files()
+```
+
 
 ***
 
 ### Moira Perceived Audience Size Colored by Age
-Notes:
+Notes: Moira's next question was although in general people weren't good at guessing their audience size, maybe certain groups be better e.g. older people would be better than teens.
+
+So next step was to do another scatter plot with a third level, where color was added to represent the age of the survey respondent - although this wasn't that useful.
+
+[Moira's Investigation from Lesson 3](https://classroom.udacity.com/courses/ud651/lessons/755618712/concepts/8140986010923)
+
+[Bernstein, M. S., Bakshy, E., Burke, M., & Karrer, B. (2013). Quantifying the invisible audience in social networks. In Proceedings of the SIGCHI Conference on Human Factors in Computing Systems (CHI 2013), pp. 21-30.](http://hci.stanford.edu/publications/2013/invisibleaudience/invisibleaudience.pdf) 
 
 ***
 
 ### Third Qualitative Variable
-Notes:
+Notes: Sometimes when we conduct EDA, we reach dead ends.
+
+Let's try to get further into the friend_count data from before. Recall, female users had more friends on average than male users.**Is this just because females have a different age distribution?**
+
+From the boxplot we can see the average age of males is slightly younger. From the lineplot, we can see the median for women is almost higher everywhere than it is for men.
+
+You can include multiple variables to split the data frame when using **group_by()** function in the dplyr package. 
+
+```{r}
+new_groupings <- group_by(data, variable1, variable2) 
+# OR 
+# using chained commands... 
+new_data_frame <- data_frame %.% 
+  group_by(variable1, variable2) %.% 
+```
+
+[Repeated use of summarise() and group_by()](http://stackoverflow.com/questions/21653295/dplyr-issues-when-using-group-bymultiple-variables): The summarize function will automatically remove one level of grouping (the last group it collapsed).
 
 ```{r Third Qualitative Variable}
+library(dplyr)
+library(ggplot2)
+pf <- read.csv('pseudo_facebook.tsv', sep='\t')
+
+# Creating the boxplot, and adding the mean 
 ggplot(aes(x = gender, y = age),
-       data = subset(pf, !is.na(gender))) + geom_histogram()
+       data = subset(pf, !is.na(gender))) + 
+  geom_boxplot() +
+  stat_summary(fun.y = mean, geom = 'point', shape = 4)
+
+# Lineplot for age and friend_count
+ggplot(aes(x = age, y = friend_count),
+       data = subset(pf, !is.na(gender))) + 
+  geom_line(aes(color=gender), stat='summary', fun.y = median)
+```
+
+#### Write code to create a new data frame, called 'pf.fc_by_age_gender', that contains information on each age AND gender group.
+
+```{r Third Qualitative Variable Quiz}
+# Chain functions together %>%
+pf.fc_by_age_gender <- pf %>%
+  filter(!is.na(gender)) %>%
+  group_by(age, gender) %>%
+  summarise(mean_friend_count = mean(friend_count),
+            median_friend_count = median(friend_count),
+            n = n()) %>%
+  ungroup() %>%
+  arrange(age)
+
+head(pf.fc_by_age_gender)
+
 ```
 
 ***
 
 ### Plotting Conditional Summaries
-Notes:
+Notes: Plot the median friend count for each gender as age increases.
+
+Create a line graph showing the median friend count over the ages for each gender. Be sure to use the data frame you just created, **pf.fc_by_age_gender**.
 
 ```{r Plotting Conditional Summaries}
-
+ggplot(aes(age, median_friend_count), 
+       data = pf.fc_by_age_gender) +
+  geom_line(aes(color = gender))
 ```
 
 ***
 
 ### Thinking in Ratios
-Notes:
+Notes: The plot above could be useful if we want to inspect these values, or carry out further operations to understand how the difference between male and female users varies with age (e.g. plot above shows gender difference is largest for our young users).
+
+It would be helpful to put this in relevant terms though. So lets answer the question: **how many times more friends does the average female user have than the male user?**
 
 ***
 
