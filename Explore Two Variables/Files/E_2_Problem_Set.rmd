@@ -13,100 +13,273 @@ Your first task is to create a scatterplot of price vs x. using the ggplot synta
 setwd("~/Desktop/Nanodegrees/Data Analyst/Task 4/Data Analysis with R/Explore Two Variables/Files/")
 library(ggplot2) # must load the ggplot package first 
 data(diamonds) # loads the diamonds data set since it comes with the ggplot package 
-summary(diamonds)
+#summary(diamonds)
 
-ggplot(aes(price, x), data = diamonds) +
-  geom_point()
+ggplot(aes(x, price), data = diamonds) +
+  geom_point(alpha = 0.05)
 ```
 
 ***
 
-### Diamonds Quiz
+### Findings - price vs. x
 
-####
+The plot shows that most diamonds have a length between 4 and 8mm, and that the diamonds price increases as length gets longer, with the highest priced diamonds having the longest length. 
 
-***
-
-### Diamonds Quiz
-
-####
+There is an exponential relationship between price and x and there are some outliers which are very large and high priced.
 
 ***
 
-### Diamonds Quiz
+### Correlations Quiz
 
-####
+```{r Correlations Quiz}
+# Betwen price and x
+with(diamonds, cor.test(price, x, method = 'pearson'))
 
-***
+# Betwen price and y
+with(diamonds, cor.test(price, y, method = 'pearson'))
 
-### Diamonds Quiz
+# Betwen price and z
+with(diamonds, cor.test(price, z, method = 'pearson'))
+```
 
-####
 
-***
+#### What is the correlation between price and x?
+0.88
 
-### Diamonds Quiz
+#### What is the correlation between price and y?
+0.87 
 
-####
-
-***
-
-### Diamonds Quiz
-
-####
-
-***
-
-### Diamonds Quiz
-
-####
+#### What is the correlation between price and z?
+0.86
 
 ***
 
-### Diamonds Quiz
+### price vs. depth Quiz
 
-####
+Create a simple scatter plot of price vs depth.
 
-***
+```{r price vs. depth}
+names(diamonds)
 
-### Diamonds Quiz
+ggplot(aes(x = depth, y = price), data = diamonds) +
+  geom_point()
+```
 
-####
-
-***
-
-### Diamonds Quiz
-
-####
 
 ***
 
-### Diamonds Quiz
+### Adjustments - price vs. depth Quiz
 
-####
+Change the code to make the transparency of the points to be 1/100 of what they are now and mark the x-axis every 2 units. 
+**Hint 1:** Use the alpha parameter in geom_point() to adjust the transparency of points. 
 
-***
+**Hint 2:** Use scale_x_continuous() with the breaks parameter to adjust the x-axis.
 
-### Diamonds Quiz
+```{r Adjustments - price vs. depth}
+ggplot(aes(x = depth, y = price), data = diamonds) +
+  geom_point(alpha = 0.01) + 
+  scale_x_continuous(breaks = seq(0,80,2))
+```
 
-####
-
-***
-
-### Diamonds Quiz
-
-####
 
 ***
 
-### Diamonds Quiz
+### Typical Depth Range Quiz
 
-####
+#### Based on the scatterplot of depth vs price, most diamonds are between what values of depth?
+59 to 64mm
 
 ***
 
-### Diamonds Quiz
+### Correlation - price and depth Quiz
 
-####
+```{r Correlation - price and depth Quiz}
+# Correlation of depth vs price
+with(diamonds, cor.test(depth, price, method = 'pearson'))
+```
+
+#### What's the correlation of depth vs price?
+-0.01
+
+#### Based on the correlation coefficient, would you use depth to predict the price of a diamond?
+I wouldn't because a score of -0.01 implies no correlation.
+
+***
+
+### price vs. carat Quiz
+
+Create a scatterplot of price vs carat and omit the top 1% of price and carat values.
+
+Both the graphs below are the same, they have different scales though.
+```{r price vs. carat Quiz}
+ggplot(aes(carat, price), data = diamonds) +
+  geom_point(alpha = 0.1) +
+  coord_cartesian(xlim = c(0, quantile(diamonds$carat, 0.99)),
+                  ylim = c(0, quantile(diamonds$price, 0.99)))
+
+ggplot(aes(x = carat, y = price), 
+       data = subset(diamonds, diamonds$price < quantile(diamonds$price, 0.99) &
+                       diamonds$carat < quantile(diamonds$carat, 0.99))) + 
+  geom_point(alpha = 0.1)
+```
+
+***
+
+### price vs. volume Quiz
+
+Create a scatterplot of price vs. volume (x * y * z). This is a very rough approximation for a diamond's volume.
+
+Create a new variable for volume in the diamonds data frame. This will be useful in a later exercise.
+
+```{r price vs. volume Quiz}
+# Volume variable
+diamonds$vol <- (diamonds$x * diamonds$y) * diamonds$z
+
+ggplot(aes(x = vol, y = price),
+       data = diamonds) + 
+  geom_point(alpha = 0.02) +
+  coord_cartesian(xlim = c(40, quantile(diamonds$vol, 0.95)),
+                  ylim = c(0, quantile(diamonds$price, 0.95))) +
+  geom_smooth(color = 'red')
+
+ggplot(aes(x = vol, y = price),
+       data = diamonds) + 
+  geom_point() +
+  geom_smooth(color = 'red')
+```
+
+***
+
+### Findings - price vs. volume Quiz
+
+I found that there seems to be a correlation between volume and price. As the volume exceeds 200, the line of best fit shows that the price is going up. 
+
+Diamonds with a volume of 200+ are rare and the majority of diamonds have a volume of between 45 - 155.
+
+There seems to be some vertical lines that are overplotted, this is probably because there are standard cut volumes and the diamonds have to fall within the range (ie. around 165, 150, 125).
+
+There is an outlier with a volume near 4000 and a cheaper diamond with a volume near 900.
+
+***
+
+### Correlations on Subsets Quiz
+
+```{r Correlations on Subsets}
+with(subset(diamonds, vol > 0 & vol < 800), cor.test(vol, price))
+```
+
+#### What's the correlation of price and volume? Exclude diamonds that have a volume of 0 or that are greater than or equal to 800.
+0.9235455
+
+***
+
+### Adjustments - price vs. volume Quiz
+
+Subset the data to exclude diamonds with a volume greater than or equal to 800. Also, exclude diamonds with a volume of 0. 
+Adjust the transparency of the points and add a linear model to the plot. (Types of [smoothers](http://www.ats.ucla.edu/stat/r/faq/smooths.htm) in ggplot2.)
+
+[Stat_smooth and Geom_smooth are aliases of each other.](http://docs.ggplot2.org/current/geom_smooth.html)
+
+```{r price vs. volume Quiz}
+ggplot(aes(x = vol, y = price),
+       data = subset(diamonds,
+                     diamonds$vol < 800 & diamonds$vol > 0)) + 
+  geom_point(alpha = 0.02) +
+  geom_smooth(color = 'red') 
+
+```
+
+#### Do you think this would be a useful model to estimate the price of diamonds? Why or why not?
+I don't think it's a useful model because after a volume of 400, the price begins to drop and I find that relationship to be unlikely given the correlation between price and volume > 0 & < 800.
+
+***
+
+### Mean Price by Clarity Quiz
+
+Use the function [dplyr](https://blog.rstudio.org/2014/01/17/introducing-dplyr/) package to create a new data frame containing info on diamonds by clarity.
+
+Name the data frame **diamondsByClarity**.
+
+```{r Mean Price by Clarity Quiz}
+library(dplyr)
+
+diamondsByClarity <- diamonds %>%
+  group_by(clarity) %>%
+  summarise(mean_price = mean(price),
+            median_price = median(price),
+            min_price = min(price),
+            max_price = max(price),
+            n = n())
+head(diamondsByClarity)
+  
+```
+
+***
+
+### Bar Charts of Mean Price Quiz
+
+We’ve created summary data frames with the mean price by clarity and color. 
+
+Your task is to write additional code to create two bar plots on one output image using the **grid.arrange()** function from the package **gridExtra**.
+
+[Bar Charts vs. Histograms](http://flowingdata.com/2014/02/27/how-to-read-histograms-and-use-them-in-r/)
+
+```{r Bar Charts of Mean Price Quiz}
+library(gridExtra)
+
+## Summary data frames with mean price by clarity and color
+diamonds_by_clarity <- group_by(diamonds, clarity)
+diamonds_mp_by_clarity <- summarise(diamonds_by_clarity, mean_price = mean(price))
+
+diamonds_by_color <- group_by(diamonds, color)
+diamonds_mp_by_color <- summarise(diamonds_by_color, mean_price = mean(price))
+
+diamonds_by_cut <- group_by(diamonds, cut)
+diamonds_mp_by_cut <- summarise(diamonds_by_cut, mean_price = mean(price))
+
+head(diamonds_mp_by_color)
+head(diamonds_mp_by_clarity)
+
+## Creating bar plots
+p1 <- ggplot(aes(color, mean_price), data=diamonds_mp_by_color) +
+  geom_bar(stat='identity')
+
+p2 <- ggplot(aes(clarity, mean_price), data = diamonds_mp_by_clarity) +
+  geom_bar(stat='identity')
+
+p3 <- ggplot(aes(cut, mean_price), data = diamonds_mp_by_cut) +
+  geom_bar(stat='identity')
+
+grid.arrange(p1, p2, p3)
+
+```
+
+***
+
+### Trends in Mean Price Quiz
+
+#### What do you notice in each of the bar charts for mean price by clarity and mean price by color?
+In price by color, the mean price goes up as the color get's worse. 
+
+In price by clarity, the S12 clarity has the highest mean price, the VVS1 clarity has the lowest. 
+
+Mean price tends to decrease as clarity improves. The same can be said for color. This seems counterintuitive.
+
+***
+
+### Gapminder Revisited Quiz
+
+The Gapminder website contains over 500 data sets with information about the world's population. Your task is to continue the investigation you did at the end of Problem Set 3.
+
+If you’re feeling adventurous or want to try some data munging see if you can find a data set or scrape one from the web.
+
+In your investigation, examine pairs of variable and create 2-5 plots that make use of the techniques from Lesson 4.
+
+```{r Gapminder Revisited Quiz}
+
+```
+
+
+#### The variable(s) you investigated and your observations (with any summary statistics). 
 
 ***
