@@ -259,62 +259,114 @@ Plotting the grand mean (the second geom_line in the code) is a good reminder th
 ***
 
 ### Friending Rate
-Notes:
+Notes: We could look at tenure and friend count as a rate instead - e.g. we could see how many friends a user has for each day since they started using the service.
+
+Create a summary of this rate that shows how many friends a user has for each day since they started using the service.
 
 ```{r Friending Rate}
+library(dplyr)
+
+with(subset(pf, tenure >= 1), summary(friend_count/tenure))
 
 ```
+
+#### What is the median friend rate?
+0.2204861
+
+#### What is the maximum friend rate?
+417
 
 ***
 
 ### Friendships Initiated
-Notes:
+Notes: Are friend requests the same or different across groups - e.g. do new users go on friending sprees?
 
-What is the median friend rate?
+#### Assignment
+Create a line graph of mean of **friendships_initiated** per day (of tenure) vs. **tenure** colored by **year_joined.bucket**.
 
-What is the maximum friend rate?
+You need to make use of the variables **tenure**, **friendships_initiated**, and **year_joined.bucket**.
+
+You also need to subset the data to only consider user with at least one day of tenure.
 
 ```{r Friendships Initiated}
-
+ggplot(aes(x = tenure, y = friendships_initiated/tenure), 
+       data = subset(pf, tenure >= 1)) +
+  geom_line(aes(color = year_joined.bucket), stat = 'summary', fun.y = mean)
 ```
+
+From the plot, it seems users with more tenure typically initiate less friendship requests.
 
 ***
 
 ### Bias-Variance Tradeoff Revisited
-Notes:
+Notes: We can adjust noise on our graph by binning our x axis differently.
+
+When plotting the graphs ontop of each other, notice how some of the peaks decrease. This means it has high bias but less variance. **Notice that as the bin size increases, we see less noise in the plot.**
+
+[Understanding the Bias-Variance Tradeoff](http://scott.fortmann-roe.com/docs/BiasVariance.html)
+
+NOTE: The code changing the binning is substituting **x = tenure** in the plotting expressions with **x = 7 * round(tenure / 7), etc.,** binning values by the denominator in the round function and then transforming back to the natural scale with the constant in front.
 
 ```{r Bias-Variance Tradeoff Revisited}
-
-ggplot(aes(x = tenure, y = friendships_initiated / tenure),
+library(gridExtra)
+p1 <- ggplot(aes(x = tenure, y = friendships_initiated / tenure),
        data = subset(pf, tenure >= 1)) +
   geom_line(aes(color = year_joined.bucket),
             stat = 'summary',
-            fun.y = mean)
+            fun.y = mean) 
 
-ggplot(aes(x = 7 * round(tenure / 7), y = friendships_initiated / tenure),
+p2 <- ggplot(aes(x = 7 * round(tenure / 7), y = friendships_initiated / tenure),
        data = subset(pf, tenure > 0)) +
   geom_line(aes(color = year_joined.bucket),
             stat = "summary",
             fun.y = mean)
 
-ggplot(aes(x = 30 * round(tenure / 30), y = friendships_initiated / tenure),
+p3 <- ggplot(aes(x = 30 * round(tenure / 30), y = friendships_initiated / tenure),
        data = subset(pf, tenure > 0)) +
   geom_line(aes(color = year_joined.bucket),
             stat = "summary",
             fun.y = mean)
 
-ggplot(aes(x = 90 * round(tenure / 90), y = friendships_initiated / tenure),
+p4 <- ggplot(aes(x = 90 * round(tenure / 90), y = friendships_initiated / tenure),
        data = subset(pf, tenure > 0)) +
   geom_line(aes(color = year_joined.bucket),
             stat = "summary",
             fun.y = mean)
 
+## Using geom_smooth instead of geom_line
+p5 <- ggplot(aes(x = tenure, y = friendships_initiated / tenure),
+       data = subset(pf, tenure >= 1)) +
+  geom_smooth(aes(color = year_joined.bucket)) 
+
+grid.arrange(p1,p2,p3,p4,p5, ncol=1)
 ```
 
 ***
 
 ### Sean's NFL Fan Sentiment Study
-Notes:
+Notes: He's been working on measuring fan sentiment for NFL teams over the course of the season - it kind of like visualising the experience of being a fan.
+
+He counted ratios of positive to negative words at 5 min increments over the course of the whole 4 months of the NFL season. As it's a ratio, you have measurements that are extremely high (sometimes of over 100).
+
+The next step he did was compute a moving average of these 5 min measurements and you start to get a bit of signal out. As we're pooling out the measurments, the measurements themselves are more reliable. End up with a series that tells a story but still noisy.
+
+They then aggregated this up to 1 day moving averages, you start to see patterns emerge. 
+
+**They wanted a model that predicts sentiments of a function of time.**
+
+They could tell this model was a bad model of the data generating process because you'd expect to see jumps as a match ended (you know if you won or lost) but this didn't show. So they needed a more flexible model.
+
+One way to do this is use a 7 day moving average which allows us to include only the last game sentiment in the moving average, so you pick a moving average like before but smooth it out over a whole 7 day period. **This gave a really nice story (graph)**.
+
+
+
+ 
+
+[The Emotional Highs and Lows of the NFL Season](https://www.facebook.com/notes/facebook-data-science/the-emotional-highs-and-lows-of-the-nfl-season/10152033221418859)
+
+[The National Football League (NFL)](https://en.wikipedia.org/wiki/National_Football_League)
+
+[Sean Taylor](http://seanjtaylor.com/)
 
 ***
 
