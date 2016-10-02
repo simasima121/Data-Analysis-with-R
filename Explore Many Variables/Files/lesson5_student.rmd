@@ -371,7 +371,17 @@ One way to do this is use a 7 day moving average which allows us to include only
 ***
 
 ### Introducing the Yogurt Data Set
-Notes:
+Notes: Because of online purchases, debit cards and loyalty cards, theres lots of retail purchase data associated with individuals or households such that there is a history of purchase data over time. 
+
+Analysts in industry often mine this **panel scanner data** and economists and other behavioural scientists use it to test and develop theories about consumer behaviour.
+
+[Bayesian Statistics and Marketing](http://www.perossi.org/home/bsm-1) contains the data set and a case study on it.
+
+The citation for the original paper on the yogurt data set is Kim, Jaehwan, Greg M. Allenby, and Peter E. Rossi. "Modeling consumer demand for variety." Marketing Science 21.3 (2002): 229-250.
+
+A special thanks to Professor Allenby for helping us understand this data set.
+
+To learn more about scanner data, check out [Panel Data Discrete Choice Models of Consumer Demand](http://www.nuff.ox.ac.uk/Economics/papers/2013/Panel%20Data%20Demand%20-%20June%2020,%202013.pdf)
 
 ***
 
@@ -379,44 +389,122 @@ Notes:
 Notes:
 
 ```{r Histograms Revisited}
+yo <- read.csv("yogurt.csv")
 
+## Understand the tables in yo
+str(yo)
+summary(yo)
+
+## Change the id from an int to a factor
+yo$id <- factor(yo$id)
+str(yo)
+
+## Create a histogram of the data.
+ggplot(data = yo, aes(x = price)) +
+  geom_histogram()
 ```
+
+#### What do you notice?
+There is some discreteness to this distrubution. There appear to be prices at which there are many observations but then no prices at adjacent observations. 
+
+There are some prices that involve much lower prices, and if we are interested in price sensitivity, we want to conider what sort of variation is in these prices.
 
 ***
 
 ### Number of Purchases
-Notes:
+Notes: A clue to the discreteness of the distribution can be found in the summary. The 75th percentile (3rd quartile) is the same as the maximum in price. 
+
+We could also see this discreteness by looking at how many distinct prices there are in the dataset. Tabling this variable, we get an idea of the distribution like we saw in the histogram.
+
+#### Assignment
+Create a new variable called **all.purchases**, which gives the total counts of yogurt for each observation or household.
+
+One way to do this is using the **transform function**. You can look up the function transform and run the examples of code at the bottom of the documentation to figure out what it does.
+
+The transform function produces a data frame so if you use it then save the result to 'yo'!
 
 ```{r Number of Purchases}
+summary(yo)
 
+# How many distinct prices in the dataset.
+unique(yo$price)
+length(unique(yo$price))
+table(yo$price)
+
+# Assignment
+?transform
+head(transform(yo, all.purchases = strawberry + blueberry + pina.colada + plain + mixed.berry))
+
+yo <- transform(yo, all.purchases = strawberry + blueberry + pina.colada + plain + mixed.berry)
 ```
 
 ***
 
 ### Prices over Time
-Notes:
+Notes: Now that we have the all.purchases column, we can create a histogram of it.
+
+#### Assignment
+Create a scatterplot of price vs time. This will be an example of a time series plot.
+
+Resolve overplotting issues by using techniques you learned in Lesson 4.
 
 ```{r Prices over Time}
-
+names(yo)
+# Geom_jiter makes them show up a little bit transparent.
+ggplot(aes(time, price), data = yo) + 
+  geom_jitter(alpha = 0.25, shape = 21)
 ```
+
+From the plot, we can see the most common prices seem to be incresing over time. There seem to be some lower price points scattered over time (could be due to sales or coupons).
 
 ***
 
 ### Sampling Observations
-Notes:
+Notes: When familiriasing yourself with a dataset that contains multiple observations of the same unit, it's often useful to work with a sample of those units so that it's easy to display the raw data for that sample.
+
+In the case of the yogurt data set, we might want to look at a small sample of households in more details so we know what kind of within and between household variation we're working with. 
 
 ***
 
 ### Looking at Samples of Households
 
+**x %in% y** returns a logical (boolean) vector the same length as x that says whether each entry in x appears in y. That is, for each entry in x, it checks to see whether it is in y. 
+
+This allows us to subset the data so we get all the purchases occasions for the households in the sample. Then, we create scatterplots of price vs. time and facet by the sample id. 
+
+Use the **pch** or **shape** parameter to specify the symbol when plotting points. Scroll down to ['Plotting Points' on QuickR's Graphical Parameters](http://www.statmethods.net/advgraphs/parameters.html).
+
+
 ```{r Looking at Sample of Households}
+# Set the seed for reproducible results. We see same householders as the tutorial if you use the same seed number.
+set.seed(4230)
+ 
+# Getting 16 sample results from the yogurt dataset. Sampling from levels because those are all the different households he has.
+sample.ids <- sample(levels(yo$id),16)
+
+# Plot each purchase occasion for each of the households that we have a sample of. Size parameter adds more details (parsed all purchases so can consider the number of items in terms of size of the point on the plot).
+ggplot(aes(time, price),
+       data = subset(yo, id %in% sample.ids)) +
+  facet_wrap(~id) +
+  geom_line() +
+  geom_point(aes(size = all.purchases), pch = 1)
 
 ```
+
+From these plots, we can see the variation in how often these households buys yogurt. Can also determine quantities with larger circles indicating that. 
+
+For most of the households, the price of yogurt holds steady or tends to increase over time. 
 
 ***
 
 ### The Limits of Cross Sectional Data
-Notes:
+Notes: **The idea here is that if we have observations over time, we can facet by the primary unit case or individual in the data set**. 
+
+In the yogurt data it was the households we were facetting over. 
+
+The facebook dataset isn't great for examinig the process of friending over time. The data is just a **cross section (one snapshot at a fixed point)** that tells us the characteristics of individuals, not the individuals over say a year.
+
+
 
 ***
 
