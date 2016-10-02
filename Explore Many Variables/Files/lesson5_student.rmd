@@ -34,11 +34,11 @@ From the boxplot we can see the average age of males is slightly younger. From t
 You can include multiple variables to split the data frame when using **group_by()** function in the dplyr package. 
 
 ```{r}
-new_groupings <- group_by(data, variable1, variable2) 
+#new_groupings <- group_by(data, variable1, variable2) 
 # OR 
 # using chained commands... 
-new_data_frame <- data_frame %.% 
-  group_by(variable1, variable2) %.% 
+#new_data_frame <- data_frame %.% 
+  #group_by(variable1, variable2) %.% 
 ```
 
 [Repeated use of summarise() and group_by()](http://stackoverflow.com/questions/21653295/dplyr-issues-when-using-group-bymultiple-variables): The summarize function will automatically remove one level of grouping (the last group it collapsed).
@@ -504,49 +504,106 @@ In the yogurt data it was the households we were facetting over.
 
 The facebook dataset isn't great for examinig the process of friending over time. The data is just a **cross section (one snapshot at a fixed point)** that tells us the characteristics of individuals, not the individuals over say a year.
 
-
-
 ***
 
 ### Many Variables
-Notes:
+Notes: In the previous examples, we've used our domain knowledge to determine relevant variables. Often, we might want visualisations or summaries to help us identify such auxillary variables. 
+
+In some analyses, we may plan to take make use of a large number of variables (10, 20 or 100s of others). Or maybe we want to summarise a large set of variables into a smaller set of dimensions. Or perhaps we're looking for interesting relationships amongst a large set of variables. 
+
+In such cases, **we can help speed up our EDA by producing many plots or comparisons at once.** This could be one way to let the dataset as whole speak in part by drawing our attention to variables we didn't have a preexisting interest in.
 
 ***
 
 ### Scatterplot Matrix
-Notes:
+Notes: **We should let the data speak to determine variables of interest.** A tool we can use to create a number of scatterplots automatically is called a **scatter plot matrix.**
+
+In a scatterplot matrix, there's a grid of scatterplots between every pair of variables. 
+
+Here's the [scatterplot matrix](https://s3.amazonaws.com/udacity-hosted-downloads/ud651/scatterplotMatrix.pdf) as a pdf. 
+
+If the plot takes a long time to render or if you want to see some of the scatterplot matrix, then only examine a smaller number of variables. You can use the following code or select fewer variables. We recommend including gender (the 6th variable)! 
+
+**pf_subset <- pf[ , c(2:7)] **
+
+You may also find that variable labels are on the outer edges of the scatterplot matrix, rather than on the diagonal. If you want labels in the diagonal, you can set the **axisLabels = 'internal'** argument in your **ggpairs** command.
+
+```{r Scatterplot Matrix}
+# Install package for scatterplot matrix
+# install.packages('GGally')
+library(GGally)
+theme_set(theme_minimal(20))
+
+# set the seed for reproducible results
+set.seed(1836)
+
+# Subset data because we don't want user id, year joined or year joined.bucket
+pf_subset <- pf[, c(2:15)]
+names(pf_subset)
+
+######## This takes a long time to run so just look at the pdf linked above. https://s3.amazonaws.com/udacity-hosted-downloads/ud651/scatterplotMatrix.pdf
+#ggpairs(pf_subset[sample.int(nrow(pf_subset), 1000), ])
+
+# Use smaller subet so it is quicker.
+pf_subset <- pf[ , c(2:7)] 
+ggpairs(pf_subset[sample.int(nrow(pf_subset), 1000), ])
+
+names(pf_subset)
+```
+
+#### Using the plot from the pdf above, what's the correlation coefficient of friendships initiated and friend count?
+0.769
+
+#### Using the plot from the pdf above, what's the correlation coefficient of age and mobile likes?
+-0.0475
+
+#### What type of plots are below the diagonal of the scatterplot matrix? What types of plots are created for the pairs of variables that include gender?
+Scatterplots are below the diagonal, and categorical variables, like gender, create faceted histograms.
 
 ***
 
 ### Even More Variables
-Notes:
+Notes: A scatterplot matrix is extremely helpful when we have even more variables than those in the pseudo-Facebook dataset. One example of this is **genomic data**.
+
+In genomic datasets, there are often thousands of genetic measurements for each of a small number of samples. In some cases, some of these samples have a disease and so we'd like to identify genes that are associated with the disease. 
 
 ***
 
 ### Heat Maps
-Notes:
+The last plot we'll explore is called a **heatmap**. 
 
-```{r}
+For our dataset, we want to display each combination of gene and sample case, the difference in gene expression and the sample from the base line.
+
+We want to display combinations where a gene is overexpressed in red, in combinations where it is under expressed in blue.
+
+[Melt data frames in R](http://www.r-bloggers.com/melt/)
+
+```{r Heat Maps}
 nci <- read.table("nci.tsv")
-colnames(nci) <- c(1:64)
-```
 
-```{r}
+# changing the colnames to produce a nicer plot
+colnames(nci) <- c(1:64)
+
+# melt the data to long format
+library(reshape2)
 nci.long.samp <- melt(as.matrix(nci[1:200,]))
 names(nci.long.samp) <- c("gene", "case", "value")
 head(nci.long.samp)
 
+# Make the heat map. The scale_fill gives us a scale gradient and we're using the colours from blue to red.
 ggplot(aes(y = gene, x = case, fill = value),
   data = nci.long.samp) +
   geom_tile() +
   scale_fill_gradientn(colours = colorRampPalette(c("blue", "red"))(100))
 ```
 
-
 ***
 
 ### Analyzing Three of More Variables
-Reflection:
+
+* We started with simple extensions to the scatter plot, and plots of conditional summaries that you worked with previously, such as adding summaries for multiple groups. 
+* We tried some techniques for examining a large number of variables at once, such as scatter-plot matrices and heat maps.
+* We learned how to reshape data, moving from broad data with one row per case to aggregate data with one row per combo of variables, and we moved back and forth between long and wide formats for our data.
 
 ***
 
