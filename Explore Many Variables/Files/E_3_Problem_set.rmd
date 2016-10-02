@@ -1,0 +1,71 @@
+Lesson 5 Problem Set
+========================================================
+  
+***
+
+### Price Histograms with Facet and Color Quiz
+
+Create a histogram of diamond prices. Facet the histogram by diamond color and use cut to color the histogram bars.
+
+[The plot should look something like this](http://i.imgur.com/b5xyrOu.jpg). Note that the plot in the linked image is using **log(price)** for the x-axis to adjust for positive skew in the data.
+
+In the link, a **color palette of type 'qual'** was used to color the histogram using **scale_fill_brewer(type = 'qual')**
+
+```{r}
+setwd("~/Desktop/Nanodegrees/Data Analyst/Task 4/Data Analysis with R/Explore Two Variables/Files/")
+library(ggplot2)
+data(diamonds) # loads the diamonds data set since it comes with the ggplot package 
+summary(diamonds)
+
+table(diamonds$cut)
+
+ggplot(aes(x = log(price)), 
+       data=diamonds) + 
+  geom_histogram(aes(color=cut)) +
+  facet_wrap(~color) +
+  scale_colour_brewer(type = 'qual')
+
+```
+
+
+***
+
+### price vs. x Quiz
+
+***
+
+### price vs. x Quiz
+
+***
+
+### price vs. x Quiz
+
+***
+
+### price vs. x Quiz
+
+***
+
+### price vs. x Quiz
+
+***
+
+### price vs. x Quiz
+
+***
+
+### price vs. x Quiz
+
+***
+
+### price vs. x Quiz
+
+***
+
+### price vs. x Quiz
+
+***
+
+### price vs. x Quiz
+
+***
