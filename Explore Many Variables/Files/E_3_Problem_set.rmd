@@ -204,4 +204,59 @@ The Gapminder website contains over 500 data sets with information about the wor
 
 In your investigation, examine 3 or more variables and create 2-5 plots that make use of the techniques from Lesson 5.
 
+```{r Gapminder Multivariate Analysis Quiz}
+library(tidyr)
+library(dplyr)
+library(ggplot2)
+library(gridExtra)
+library(reshape2)
+library(GGally)
+library('rio')
+
+list.files()
+
+# Reading file into studio
+gdp = import('indicatorwdigdp_percapita_growth.xlsx')
+invest = import('Investment.xlsx')
+
+# Tidying data. GDI stands for Gross Domestic Investment
+gdp = gather(gdp, "year", "GDP", 2:53)
+invest = gather(invest, "year", "GDI", 2:53)
+
+# Changing column names in both
+colnames(gdp) <- c("country","year","GDP")
+colnames(invest) <- c("country","year","GDI")
+
+# Merging datasets by year
+data <- merge(gdp, invest, by = c("country","year"))
+data <- filter(data, !is.na(data$GDI))
+data <- filter(data, !is.na(data$GDP))
+
+# Plot scattergraph for all variables in the datasets
+theme_set(theme_minimal(20))
+set.seed(1836)
+#ggpairs(data[sample.int(nrow(data), 100), ])
+
+# plot scatterplot of GDI and GDP, by year group
+data$year <- as.numeric(data$year)
+summary(data$year)
+table(data$year)
+
+data$year_group <- cut(data$year, 
+                             breaks = c(1961, 1971, 1981, 1991, 2001, 2011, 2012))
+table(data$year_group)
+
+ggplot(aes(x = GDP, y = GDI, color = year_group), 
+       data = subset(data, !is.na(year_group))) +
+  geom_line(stat = 'summary', fun.y = median)
+
+# Plotting ratio of GDI to GDP over year groups
+
+# Creating new table of whether the GDI and GDP grew.
+
+table(data$GDI < 0)
+table(data$GDP < 0)
+
+```
+
 ***
