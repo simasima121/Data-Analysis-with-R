@@ -20,52 +20,188 @@ summary(diamonds)
 table(diamonds$cut)
 
 ggplot(aes(x = log(price)), 
-       data=diamonds) + 
+       data=subset(diamonds, !is.na(price))) + 
   geom_histogram(aes(color=cut)) +
   facet_wrap(~color) +
   scale_colour_brewer(type = 'qual')
 
 ```
 
+***
+
+### Price vs. Table Colored by Cut Quiz
+
+Create a scatterplot of diamond price vs. table and color the points by the cut of the diamond.
+
+[The plot should look something like this](http://i.imgur.com/rQF9jQr.jpg)
+
+In the link, a **color palette of type 'qual'** was used to color the histogram using **scale_color_brewer(type = 'qual')**
+
+```{r Price vs. Table Colored by Cut}
+names(diamonds)
+
+ggplot(aes(x = table, y = price),
+       data = subset(diamonds, !is.na(price))) +
+  geom_point(aes(color = cut)) +
+  scale_colour_brewer(type = 'qual') +
+  coord_cartesian(xlim = c(50,80)) +
+  scale_x_continuous(breaks = seq(50,80,2))
+```
 
 ***
 
-### price vs. x Quiz
+### Typical Table Value Quiz
+Use the graph you created from the previous exercise to see the answer. You don't need to run summaries.
+
+#### What is the typical table range for the majority of diamonds of ideal cut?
+53 to 57.
+
+#### What is the typical table range for the majority of diamonds of premium cut?
+58 to 62.
 
 ***
 
-### price vs. x Quiz
+### Price vs. Volume and Diamond Clarity Quiz
+
+Create a scatterplot of diamond **price vs. volume (x * y * z)** and color the points by the **clarity** of diamonds. Use scale on the y-axis to take the **log10 of price**. You should also **omit the top 1%** of diamond volumes from the plot.
+
+Note: Volume is a very rough approximation of a diamond's actual volume.
+
+[The plot should look something like this.](http://i.imgur.com/excUpea.jpg)
+
+Note: In the link, a **color palette of type 'div'** was used to color the scatterplot using **scale_color_brewer(type = 'div')**
+
+```{r Price vs. Volume and Diamond Clarity}
+diamonds$vol <- diamonds$x * diamonds$y * diamonds$z
+
+ggplot(aes(x = vol, y = price, color=clarity),
+       data = subset(diamonds, 
+                     vol != 0)) +
+  geom_point() +
+  scale_y_log10() +
+  coord_cartesian(xlim = c(0, quantile(diamonds$vol, 0.99))) +
+  scale_color_brewer(type = 'div')
+
+```
 
 ***
 
-### price vs. x Quiz
+### Proportion of Friendships Initiated Quiz
+
+Many interesting variables are derived from two or more others. 
+
+For example, we might wonder how much of a person's network on a service like Facebook the user actively initiated. Two users with the same degree (or number of friends) might be very different if one initiated most of those connections on the service, while the other initiated very few. 
+
+So it could be useful to consider this proportion of existing friendships that the user initiated. This might be a good predictor of how active a user is compared with their peers, or other traits, such as personality (i.e., is this person an extrovert?).
+
+Your task is to create a new variable called 'prop_initiated' in the Pseudo-Facebook data set. The variable should contain the proportion of friendships that the user initiated.
+
+```{r Proportion of Friendships Initiated Quiz}
+pf <- read.csv('pseudo_facebook.tsv', sep='\t')
+names(pf)
+head(pf$friendships_initiated/pf$friend_count)
+pf$prop_initiated <- ifelse(pf$friend_count == 0,
+                            0,
+                            pf$friendships_initiated/pf$friend_count)
+```
 
 ***
 
-### price vs. x Quiz
+### prop_initiated vs. tenure Quiz
+
+Create a line graph of the median proportion of **friendships initiated ('prop_initiated') vs. tenure** and color the line segment by **year_joined.bucket**.
+
+Recall, we created **year_joined.bucket** in Lesson 5 by first creating **year_joined** from the variable **tenure**. Then, we used the cut function on **year_joined** to create four bins or cohorts of users.
+
+The plot should look something like [this](http://i.imgur.com/vNjPtDh.jpg) OR [this](http://i.imgur.com/IBN1ufQ.jpg)
+
+```{r prop_initiated vs. tenure}
+library(reshape2)
+library(dplyr)
+library(tidyr)
+
+# Creating year_joined column
+pf$year_joined <- floor(2014 - pf$tenure/365)
+
+# Creating year_joined.bucket column
+pf$year_joined.bucket <- cut(pf$year_joined, 
+                             breaks = c(2004, 2009, 2011, 2012, 2014))
+table(pf$year_joined.bucket)
+
+ggplot(aes(x = tenure, y = prop_initiated, color = year_joined.bucket),
+       data = subset(pf, 
+                     tenure != 0)) +
+  geom_line(stat = 'summary', fun.y = median)
+
+```
 
 ***
 
-### price vs. x Quiz
+### Smoothing prop_initiated vs. tenure Quiz
+
+Smooth the last plot you created of **prop_initiated vs tenure** colored by **year_joined.bucket**. You can bin together ranges of tenure or add a smoother to the plot.
+
+```{r Smoothing prop_initiated vs. tenure Quiz}
+ggplot(aes(x = tenure, y = prop_initiated),
+       data = subset(pf, 
+                     tenure != 0)) +
+  geom_line(aes(color = year_joined.bucket), stat = 'summary', fun.y = median) +
+  geom_smooth()
+```
 
 ***
 
-### price vs. x Quiz
+### Greatest prop_initiated Group Quiz
+
+#### On average, which group initiated the greatest proportion of it's facebook friendships?
+People who joined after 2012.
 
 ***
 
-### price vs. x Quiz
+### Largest Group Mean prop_initiated Quiz
+
+```{r Largest Group Mean prop_initiated}
+pf %>%
+  group_by(year_joined.bucket) %>%
+  summarise(mean_prop = mean(prop_initiated))
+
+summary(subset(pf$prop_initiated, pf$year_joined > 2012))
+
+```
+
+**Both of the functions above are correct**.
+
+#### For the group with the largest proportion of friendships initiated, what is the group's average (mean) proportion of friendships initiated?
+0.6430155
+
+#### Why do you think this groups proportion of friendship initiated is higher than the others?
+This groups proportion of friendships initiated is higher because they have recently joined so they want to get their friend count up, and when they join already know a lot of people on the social network so they add them.
 
 ***
 
-### price vs. x Quiz
+### Price/Carat Binned, Faceted, & Colored Quiz
+
+Create a scatter plot of the **price/carat** ratio of diamonds. The variable **x should be assigned to cut**. The points should be **colored by diamond color**, and the plot should be **faceted by clarity**.
+
+[The plot should look something like this.](http://i.imgur.com/YzbWkHT.jpg)
+
+Note: In the link, a color palette of type **'div'** was used to color the histogram using **scale_color_brewer(type = 'div')**
+
+```{r Price/Carat Binned, Faceted, & Colored}
+ggplot(aes(x = cut, y = price/carat, color = color), 
+       data = diamonds) +
+  geom_jitter(size = 0.5) +
+  facet_wrap(~clarity) +
+  scale_color_brewer(type = 'div')
+
+```
 
 ***
 
-### price vs. x Quiz
+### Gapminder Multivariate Analysis Quiz
 
-***
+The Gapminder website contains over 500 data sets with information about the world's population. Your task is to continue the investigation you did at the end of Problem Set 4.
 
-### price vs. x Quiz
+In your investigation, examine 3 or more variables and create 2-5 plots that make use of the techniques from Lesson 5.
 
 ***
