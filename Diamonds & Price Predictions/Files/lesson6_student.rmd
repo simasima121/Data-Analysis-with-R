@@ -339,7 +339,7 @@ Holding carat weight constant, we see that diamonds with better colour are almos
 
 ### Linear Models in R
 
-![LM Function in R]("/Users/Sim/Desktop/Nanodegrees/Data Analyst/Task 4/Data Analysis with R/Diamonds & Price Predictions/Files/linear models in r.png")
+![LM Function in R](/Users/Sim/Desktop/Nanodegrees/Data Analyst/Task 4/Data Analysis with R/Diamonds & Price Predictions/Files/linear models in r.png)
 
 Price is the outcome and carat is the predictor variable. We used our domain knowledge of diamonds and carat weight to take the cube root of carat weight (volume). 
 
@@ -432,15 +432,36 @@ Since the data set is so large, you are going to use a sample of the data set to
 ```{r Building a Model Using the Big Diamonds Data Set}
 diamondsbig <- read.csv('diamondsbig.csv')
 
-```
+# Building 5 linear models
+diamondsbig$logPrice = log(diamondsbig$price)
 
+m1 <- lm(I(logPrice) ~ I(carat^(1/3)), data = subset(diamondsbig, diamondsbig$price < 10000 & diamondsbig$cert == "GIA"))
+
+# Update the previous model to add the carat variable in the regression.
+m2 <- update(m1, ~ . + carat)
+
+# We add cut even though we dont expect it to have much influence on price.
+m3 <- update(m2, ~ . + cut)
+m4 <- update(m3, ~ . + color)
+m5 <- update(m4, ~ . + clarity)
+summary(m5)
+mtable(m1, m2, m3, m4, m5, sdigits = 3)
+
+```
 
 ***
 
 ## Predictions
+Let's use our model to make a prediction. We need to exponentiate since we took the log of price.
+
+We'll use the full model m5 to predict the value of the diamond. 
 
 Example Diamond from BlueNile:
 Round 1.00 Very Good I VS1 $5,601
+
+[Confidence Intervals](https://en.wikipedia.org/wiki/Confidence_interval)
+
+The prediction interval here may be slightly conservative, as the model errors are heteroskedastic over carat (and hence price) even after our log and cube-root transformations. 
 
 ```{r}
 # Be sure you’ve loaded the library memisc and have m5 saved as an object in your workspace.
@@ -448,14 +469,42 @@ thisDiamond = data.frame(carat = 1.00, cut = "V.Good",
                          color = "I", clarity="VS1")
 modelEstimate = predict(m5, newdata = thisDiamond,
                         interval="prediction", level = .95)
+
+exp(modelEstimate)
+
+# plotting the residuals for the data between .9 and 1.1 carats.
+#dat = data.frame(m4$model, m4$residuals) 
+
+#with(dat, sd(m4.residuals)) 
+
+#with(subset(dat, carat > .9 & carat < 1.1), sd(m4.residuals)) 
+
+#dat$resid <- as.numeric(dat$m4.residuals)
+#ggplot(aes(y = resid, x = round(carat, 2)), data = dat) + 
+  #geom_line(stat = "summary", fun.y = sd) 
+
 ```
 
-Evaluate how well the model predicts the BlueNile diamond's price. Think about the fitted point estimate as well as the 95% CI.
+#### Evaluate how well the model predicts the BlueNile diamond's price. Think about the fitted point estimate as well as the 95% CI.
+The results yield an expected value for price, given the characteristics of our diamond and the upper and lower bounds of a 95% CI.
+
+As this is a linear model, function **predict** is just multiplying each model coefficient by each value in our data. 
+
+The diamond from the BlueNil dataset is slightly more expected than the value under the full model, though it is by no means outside the 95% confidence interval.
 
 ***
 
 ## Final Thoughts
-Notes:
+
+Even though we can predict the price of a diamond based on a function of the 4 Cs, **one thing you should not conclude from this exercise is that where you buy your diamond is irrelevant.** You almost surely pay more for the same diamond at Tiffany's compared to Costco.
+
+Regardless, you can use a model like this to get a sense of whether you were overpaying. 
+
+**Data and models are never infallible** and you can still get ripped off, even with this kind of analysis.
+
+[Tiffany vs. Costco: Which Diamond Ring is Better](http://www.bloomberg.com/news/articles/2013-05-06/tiffany-vs-dot-costco-which-diamond-ring-is-better)
+
+[But Costco Sells Pricy Diamonds Too](http://www.costco.com/CatalogSearch?catalogId=10701&langId=-1&keyword=Engagement&storeId=10301&refine=30108%2b209%2b238%2b210%2b)
 
 ***
 
