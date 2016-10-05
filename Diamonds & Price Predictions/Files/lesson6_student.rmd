@@ -80,14 +80,14 @@ First thing you should do is plot key variables against each othre using the **g
 
 ```{r ggpairs Function}
 # install these if necessary
-install.packages('GGally')
-install.packages('scales')
-install.packages('memisc') # Summarises the regression
-install.packages('lattice')
-install.packages('MASS')
-install.packages('car') # to recode variables
-install.packages('reshape') # same as reshape2, used to reshape and wrangle your data 
-install.packages('plyr') # same as dplyr, used to create interesting summaries and transformation of your data
+#install.packages('GGally')
+#install.packages('scales')
+#install.packages('memisc') # Summarises the regression
+#install.packages('lattice')
+#install.packages('MASS')
+#install.packages('car') # to recode variables
+#install.packages('reshape') # same as reshape2, used to reshape and wrangle your data 
+#install.packages('plyr') # same as dplyr, used to create interesting summaries and transformation of your data
 
 # load the ggplot graphics package and the others
 library(ggplot2)
@@ -98,10 +98,10 @@ library(memisc)
 # sample 10,000 diamonds from the data set
 set.seed(20022012)
 diamond_samp <- diamonds[sample(1:length(diamonds$price), 10000), ]
-ggpairs(diamond_samp, 
-        lower = list(continuous = wrap("points", shape = I('.'))),
-        upper = list(combo = wrap("box", outlier.shape = I('.'))),
-        axisLabels = 'internal')
+#ggpairs(diamond_samp, 
+        #lower = list(continuous = wrap("points", shape = I('.'))),
+        #upper = list(combo = wrap("box", outlier.shape = I('.'))),
+        #axisLabels = 'internal')
 ```
 
 #### What are some things you notice in the ggpairs output?
@@ -268,41 +268,24 @@ ggplot(aes(x = carat, y = price, color = clarity), data = diamonds) +
 ***
 
 ### Clarity and Price
-Response:
+
+#### Based on the plot, do you think clarity explains some of the change in price? Why?
+Clarity seems to explain a lot of the remaining variance in price, after adding color to our plot. 
+
+Holding carat weight constant we see that diamonds with lower clarity are almost always cheaper than diamonds with better clarity.
 
 ***
 
 ### Price vs. Carat and Cut
 
-Alter the code below.
+#### Alter the code below.
+Adjust the code below to color the points by cut.
+
 ```{r Price vs. Carat and Cut}
-ggplot(aes(x = carat, y = price, color = clarity), data = diamonds) + 
-  geom_point(alpha = 0.5, size = 1, position = 'jitter') +
-  scale_color_brewer(type = 'div',
-                     guide = guide_legend(title = 'Clarity', reverse = T,
-                                          override.aes = list(alpha = 1, size = 2))) +  
-  scale_x_continuous(trans = cuberoot_trans(), limits = c(0.2, 3),
-                     breaks = c(0.2, 0.5, 1, 2, 3)) + 
-  scale_y_continuous(trans = log10_trans(), limits = c(350, 15000),
-                     breaks = c(350, 1000, 5000, 10000, 15000)) +
-  ggtitle('Price (log10) by Cube-Root of Carat and Clarity')
-```
-
-***
-
-### Cut and Price
-Response:
-
-***
-
-### Price vs. Carat and Color
-
-Alter the code below.
-```{r Price vs. Carat and Color}
 ggplot(aes(x = carat, y = price, color = cut), data = diamonds) + 
   geom_point(alpha = 0.5, size = 1, position = 'jitter') +
   scale_color_brewer(type = 'div',
-                     guide = guide_legend(title = Cut, reverse = T,
+                     guide = guide_legend(title = 'Clarity', reverse = T,
                                           override.aes = list(alpha = 1, size = 2))) +  
   scale_x_continuous(trans = cuberoot_trans(), limits = c(0.2, 3),
                      breaks = c(0.2, 0.5, 1, 2, 3)) + 
@@ -313,28 +296,75 @@ ggplot(aes(x = carat, y = price, color = cut), data = diamonds) +
 
 ***
 
+### Cut and Price
+
+[What makes a diamond sparkle?](http://www.bluenile.com/education/diamonds/cut)
+
+#### Based on the plot, do you think cut explains some of the change in price? Why?
+Cut doesn't seem to explain the remaining variance in price, after adding colour to our plot. Most of the diamonds are ideal cut anyway.
+
+Holding carat weight constant, we see that diamonds with better cut are not clearly always priced higher than diamonds with worse cut.
+***
+
+### Price vs. Carat and Color
+
+#### Alter the code below.
+Adjust the code below to color the points by diamond colors and change the titles.
+
+```{r Price vs. Carat and Color}
+ggplot(aes(x = carat, y = price, color = color), data = diamonds) + 
+  geom_point(alpha = 0.5, size = 1, position = 'jitter') +
+  scale_color_brewer(type = 'div',
+                     guide = guide_legend(title = 'Color', reverse = F,
+                                          override.aes = list(alpha = 1, size = 2))) +  
+  scale_x_continuous(trans = cuberoot_trans(), limits = c(0.2, 3),
+                     breaks = c(0.2, 0.5, 1, 2, 3)) + 
+  scale_y_continuous(trans = log10_trans(), limits = c(350, 15000),
+                     breaks = c(350, 1000, 5000, 10000, 15000)) +
+  ggtitle('Price (log10) by Cube-Root of Carat and Color')
+```
+
+***
+
 ### Color and Price
-Response:
+
+[Diamond Education: Color](http://www.bluenile.com/diamonds/diamond-color)
+
+#### Based on the plot, do you think the color explains some of the change in price? Why?
+Color does seem to explain some of the remaining variance in price, after adding color to our plot. 
+
+Holding carat weight constant, we see that diamonds with better colour are almost always more expensive than diamonds with cheaper colour.
 
 ***
 
 ### Linear Models in R
-Notes:
 
-Response:
+![LM Function in R]("/Users/Sim/Desktop/Nanodegrees/Data Analyst/Task 4/Data Analysis with R/Diamonds & Price Predictions/Files/linear models in r.png")
+
+Price is the outcome and carat is the predictor variable. We used our domain knowledge of diamonds and carat weight to take the cube root of carat weight (volume). 
 
 ***
 
 ### Building the Linear Model
-Notes:
+[Linear Models and Operators in R](http://data.princeton.edu/R/linearModels.html)
+
+**The real functional relationship is not as simple as the cubed root of carat, so we add a simple linear function of carat in our model predicting price.** 
+
+The model is made more complex by adding more variables. This model now accounts for almost all variance in price using the 4 Cs. 
 
 ```{r Building the Linear Model}
+# Store the first model in var called m1. I wrapper stands for as is.
 m1 <- lm(I(log(price)) ~ I(carat^(1/3)), data = diamonds)
+
+# Update the previous model to add the carat variable in the regression.
 m2 <- update(m1, ~ . + carat)
+
+# We add cut even though we dont expect it to have much influence on price.
 m3 <- update(m2, ~ . + cut)
 m4 <- update(m3, ~ . + color)
 m5 <- update(m4, ~ . + clarity)
-mtable(m1, m2, m3, m4, m5)
+summary(m5)
+mtable(m1, m2, m3, m4, m5, sdigits = 3)
 ```
 
 Notice how adding cut to our model does not help explain much of the variance
@@ -343,36 +373,64 @@ in the price of diamonds. This fits with out exploration earlier.
 ***
 
 ### Model Problems
-Video Notes:
+Let’s put our model in a larger context. Assuming that the data is not somehow corrupted and we are not egregiously violating some of the key assumptions of linear regression (for example, violating the [IID assumption](http://en.wikipedia.org/wiki/Independent_and_identically_distributed_random_variables) by having a bunch of duplicated observations in our data set), what could be some problems with this model? What else should we think about when using this model? 
 
-Research:
-(Take some time to come up with 2-4 problems for the model)
-(You should 10-20 min on this)
+Take your time to answer this question, do some qualitative research about the diamond market. See the links below to get started. 
 
-Response:
+[Diamond Prices over the Years](http://www.pricescope.com/diamond-prices/diamond-prices-chart)
+
+[Global Diamond Report](http://www.bain.com/publications/articles/global-diamond-report-2013.aspx)
+
+[http://diamonds.blogs.com/diamonds_update/diamond-prices/](Falling Supply and Rising Demand: Couples in Shanghai take to the Ring)
+
+#### What could be some problems with this model? What else should we think about when using this model? 
+
+1. Our data is from 2008, now it's 2016. (Inflation/Recession)
+2. Diamond pricing data is updated monthly and vendors typically add 10% or less to wholesale price.
+2. Economic uncertainty can dramatically influence the price of a diamond.
+3. Supply i.e. volume of sales should be factored in as this will affect diamond price.
+4. Area diamond is selling in will have impact on diamond price.
+5. Diamond prices across different carat sizes grew unevenly since 2008, therefore model that we estiamted couldn't simply be adjust by inflation.
+
+#### If you'd like to learn more about linear models and how to interpret regression coefficients, please refer to the following articles.
+
+[Interpreting Regression Coefficients in R on R Bloggers](http://www.r-bloggers.com/interpreting-regression-coefficient-in-r/?utm_source=feedburner&utm_medium=email&utm_campaign=Feed%3A+RBloggers+%28R+bloggers%29)
+
+[Interpreting Regression Coefficients on the Analysis Factor blog](http://www.theanalysisfactor.com/interpreting-regression-coefficients/)
+
+[Fitting and Interpreting Linear Models by ŷhat](http://blog.yhathq.com/posts/r-lm-summary.html)
+
+[Another Explanation of Factor Coefficients in Linear Models on Stats StackExchange](http://stats.stackexchange.com/a/24256)
 
 ***
 
 ### A Bigger, Better Data Set
-Notes:
+If the code shown in the video does not work, the dataset is available for download here: [https://github.com/solomonm/diamonds-data](https://github.com/solomonm/diamonds-data). Click on the **BigDiamonds.Rda** link, then click on the "Raw" button to start the download. Once downloaded, the data can be loaded using the command **load("BigDiamonds.rda").**
 
 ```{r A Bigger, Better Data Set}
-install.package('bitops')
-install.packages('RCurl')
-library('bitops')
-library('RCurl')
+#install.packages('bitops')
+#install.packages('RCurl')
+#library('bitops')
+#library('RCurl')
 
-diamondsurl = getBinaryURL("https://raw.github.com/solomonm/diamonds-data/master/BigDiamonds.Rda")
-load(rawConnection(diamondsurl))
+#diamondsurl = getBinaryURL("https://raw.github.com/solomonm/diamonds-data/master/BigDiamonds.Rda")
+#load(rawConnection(diamondsurl))
 ```
 
 The code used to obtain the data is available here:
 https://github.com/solomonm/diamonds-data
 
+By trimming the most expensive diamonds from the data set, our model will also be less likely to be thrown off by outliers and the higher variants at the high end of price and carat.
+
 ## Building a Model Using the Big Diamonds Data Set
-Notes:
+Your task is to build five linear models like Solomon did for the diamonds data set only this time you'll use a sample of diamonds from the diamondsbig data set.
+
+Be sure to make use of the same variables (logprice, carat, etc.) and model names (m1, m2, m3, m4, m5).
+
+Since the data set is so large, you are going to use a sample of the data set to compute the models. You can use the entire data set on your machine which will produce slightly different coefficients and statistics for the models.
 
 ```{r Building a Model Using the Big Diamonds Data Set}
+diamondsbig <- read.csv('diamondsbig.csv')
 
 ```
 
@@ -385,7 +443,7 @@ Example Diamond from BlueNile:
 Round 1.00 Very Good I VS1 $5,601
 
 ```{r}
-#Be sure you’ve loaded the library memisc and have m5 saved as an object in your workspace.
+# Be sure you’ve loaded the library memisc and have m5 saved as an object in your workspace.
 thisDiamond = data.frame(carat = 1.00, cut = "V.Good",
                          color = "I", clarity="VS1")
 modelEstimate = predict(m5, newdata = thisDiamond,
