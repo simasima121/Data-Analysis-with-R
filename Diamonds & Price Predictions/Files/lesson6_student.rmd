@@ -2,49 +2,92 @@ Lesson 6
 ========================================================
 
 ### Welcome
-Notes:
+Notes: We'll learn about the diamonds market, and use the EDA techniques that you've learned to develop a quantitative understanding of it.
+
+**The ultimate goal is to build a predictive model of diamonds that's going to help you figure out whether a given diamond is a good deal, or a rip off.**
 
 ***
 
 ### Scatterplot Review
 
+Let's start by examining two variables in the data set. The scatterplot is a powerful tool to help you understand the relationship between two continuous variables.
+
+We can quickly see if the relationship is linear or not. In this case, we can use a variety of diamond characteristics to help us figure out whether the price advertised for any given diamond is reasonable or a rip-off.
+
+Let's consider the price of a diamond and it's carat weight. Create a scatterplot of **price (y) vs carat weight (x).**
+
+Limit the x-axis and y-axis to omit the top 1% of values.
+
+Hint: Use the quantile() function inside of xlim and ylim to omit the top 1% of values for each variable.
+
 ```{r Scatterplot Review}
 setwd("/Users/Sim/Desktop/Nanodegrees/Data Analyst/Task 4/Data Analysis with R/Diamonds & Price Predictions/Files/")
+
+library(ggplot2)
+data(diamonds)
+names(diamonds)
+
+ggplot(aes(x = carat,y = price), data = diamonds) +
+  geom_point(fill = I('#F79420'), color = I('black'), shape = 21) +
+  stat_smooth(method = 'lm') +
+  coord_cartesian(xlim = c(0, quantile(diamonds$carat, 0.99)),
+                  ylim = c(0, quantile(diamonds$price, 0.99))) 
+
+# Both the plots below are the same too
+#qplot(data = diamonds, x = carat, y = price,
+#      xlim = c(0, quantile(diamonds$carat, 0.99)),
+#      ylim = c(0, quantile(diamonds$price, 0.99))) +
+#  geom_point(fill = I('#F79420'), color = I('black'), shape = 21)
+
+#ggplot(diamonds, aes(x = carat, y = price)) +
+#  scale_x_continuous(lim = c(0, quantile(diamonds$carat, 0.99))) +
+#  scale_y_continuous(lim = c(0, quantile(diamonds$price, 0.99))) +
+#  geom_point(fill = I('#F79420'), color = I('black'), shape = 21) 
 ```
 
 ***
 
 ### Price and Carat Relationship
-Response:
+
+#### What do you notice about the relationship between price and carat?
+
+They are not linearly related. They are more likely exponentially related. 
+
+The dispersion or variance of the relationship also increases as carat size increases. 
 
 ***
 
 ### Frances Gerety
-Notes:
 
-#### A diamonds is
+[Have You Ever Tried to Sell a Diamond?](http://www.theatlantic.com/magazine/archive/1982/02/have-you-ever-tried-to-sell-a-diamond/304575/)
 
+[De Beers' Diamond Monopoly](https://en.wikipedia.org/wiki/De_Beers#Diamond_monopoly)
+
+#### Complete the Slogan
+A diamond is forever.
 
 ***
 
 ### The Rise of Diamonds
 Notes:
-
+The [Counte of Monte Cristo](https://www.youtube.com/watch?v=PJyRNeCErNE) and [Knocked Up](https://www.youtube.com/watch?v=Be3sZKmfb9g) are two movies that have proposals without engagement rings.
 ***
 
 ### ggpairs Function
-Notes:
+First thing you should do is plot key variables against each othre using the **ggpairs function.** You may want to sample first otherwise the function will take a long time to render the plots. If the dataset has more than 10 columns, there's too many plotting windows so subet on your columns first if that's the case.
+
+**Remember, our goal is to understand the price of diamonds**, so we go to the price variable and look at the relationships that correspond to price.
 
 ```{r ggpairs Function}
 # install these if necessary
 install.packages('GGally')
 install.packages('scales')
-install.packages('memisc')
+install.packages('memisc') # Summarises the regression
 install.packages('lattice')
 install.packages('MASS')
-install.packages('car')
-install.packages('reshape')
-install.packages('plyr')
+install.packages('car') # to recode variables
+install.packages('reshape') # same as reshape2, used to reshape and wrangle your data 
+install.packages('plyr') # same as dplyr, used to create interesting summaries and transformation of your data
 
 # load the ggplot graphics package and the others
 library(ggplot2)
@@ -55,43 +98,86 @@ library(memisc)
 # sample 10,000 diamonds from the data set
 set.seed(20022012)
 diamond_samp <- diamonds[sample(1:length(diamonds$price), 10000), ]
-ggpairs(diamond_samp, params = c(shape = I('.'), outlier.shape = I('.')))
+ggpairs(diamond_samp, 
+        lower = list(continuous = wrap("points", shape = I('.'))),
+        upper = list(combo = wrap("box", outlier.shape = I('.'))),
+        axisLabels = 'internal')
 ```
 
-What are some things you notice in the ggpairs output?
-Response:
+#### What are some things you notice in the ggpairs output?
+We cab see what might be relationships between price and clarity and price and color which we keep in mind for later when we model our data.
+
+It's often the case that leveraging substantive knowledge about your data (e.g. weight == volume = length*width*height therefore cube root of carat weight could be especially interesting) can lead to fruitful transformations.
 
 ***
 
 ### The Demand of Diamonds
-Notes:
+On demand size, customers in market for a less expensive smaller diamonds are probably more sensitive to price than more well-to-do buyers. There are also fewer customers who can afford a larger than one carat diamond, hence we shouldn't expect the market for bigger diamonds to be as competitive as the one for smaller diamonds. **Therefore, it makes sense that the variance as well as the price would increase with carat size.** 
+
+Often, the distribution of any monetary variable like dollars will be highly skewed and vary over orders of magnitude. **Hence, it's a good idea to look into compressing any such variable by putting it on a log scale.**
+
+[Log transformations](https://www.r-statistics.com/2013/05/log-transformations-for-skewed-and-wide-distributions-from-practical-data-science-with-r/)
+
+#### Assignment
+
+Create two histograms of the price variable and place them side by side on one output image.
+
+The first plot should be a histogram of price and the second plot should transform the price variable using log10.
+
+Set appropriate bin widths for each plot. ggtitle() will add a title to each histogram.
 
 ```{r The Demand of Diamonds}
+library(gridExtra)
 
+plot1 <- qplot(x = price, 
+               data = diamonds, 
+               binwidth = 100) + 
+  ggtitle('Price')
+
+plot2 <- qplot(x = price, 
+               data = diamonds,
+               binwidth = 0.01) +
+  ggtitle('Price (log10)') +
+  scale_x_log10()
+
+grid.arrange(plot1, plot2, ncol = 2)
 ```
 
 ***
 
 ### Connecting Demand and Price Distributions
-Notes:
+In the untransformed plot, there is a positive skew of data with a higher frequency of sales occuring at lower prices.
+
+In the transformed plot, the distribution is bimodal with a peak around 800 and a peak around 6000. The reasons for the peak are probably at 800, this is the price most people who aren't very wealthy would pay for a diamond and 6000 is the price for people who are wealthy. **The bimodal plot is consistent with our 2 class rich buyer poor buyer speculation about the nature of customers for diamonds**.
 
 ***
 
 ### Scatterplot Transformation
+Now we have a better understanding of our variables, and the overall demand for diamonds, let's replot the data.
+
+This time putting price on a log10 scale.
+
+Let's try using the cube root of carat in light of our new speculation about flaws being exponentially more likely in diamonds with more volume (volume is on a cubic scale). 
+
+[Basic Structure of a Function](https://www.youtube.com/watch?v=DzIy6U-N6ac&list=PLOU2XLYxmsIK9qQfztXeybpHvru-TrqAP&index=17)
 
 ```{r Scatterplot Transformation}
-
+qplot(carat, price, data=diamonds) +
+  scale_y_continuous(trans = log10_trans()) +
+  ggtitle('Price (log10) by Carat')
 ```
 
 
-### Create a new function to transform the carat variable
+#### Create a new function to transform the carat variable
 
+This function takes the cube root of any input variable and it also have an inverse function to undo that operation, which we need to display the plot correctly.
 ```{r cuberoot transformation}
 cuberoot_trans = function() trans_new('cuberoot', transform = function(x) x^(1/3),
                                       inverse = function(x) x^3)
 ```
 
 #### Use the cuberoot_trans function
+We then use the **cuberoot_trans function** in the **scale_x_contiunous** argument to transform the x axis with this cube root transformation function. 
 ```{r Use cuberoot_trans}
 ggplot(aes(carat, price), data = diamonds) + 
   geom_point() + 
@@ -102,18 +188,29 @@ ggplot(aes(carat, price), data = diamonds) +
   ggtitle('Price (log10) by Cube-Root of Carat')
 ```
 
+From this plot, we can see that the transformation looks almost linear.
+
 ***
 
 ### Overplotting Revisited
+**Overplotting** is when multiple points take on the same value. This is often due to rounding. 
 
 ```{r Sort and Head Tables}
-
+# Run table command on carat and price, sorting by highest values
+head(sort(table(diamonds$carat), decreasing = T))
+head(sort(table(diamonds$price), decreasing = T))
 ```
 
+From these tables, you can see that there is going to be serious overplotting. This can obscure some of the density and the sparsity of our data at really key points.
+
+**Deak with this by making your points smaller by jittering your points and by adding transparency.**
+
+#### Assignment
+Add a layer to adjust the features of the scatterplot. Set the transparency to one half, the size to three-fourths, and jitter the points.
 
 ```{r Overplotting Revisited}
 ggplot(aes(carat, price), data = diamonds) + 
-  geom_point() + 
+  geom_point(alpha = 0.5, size = 0.75, position = 'jitter') + 
   scale_x_continuous(trans = cuberoot_trans(), limits = c(0.2, 3),
                      breaks = c(0.2, 0.5, 1, 2, 3)) + 
   scale_y_continuous(trans = log10_trans(), limits = c(350, 15000),
@@ -124,19 +221,39 @@ ggplot(aes(carat, price), data = diamonds) +
 ***
 
 ### Other Qualitative Factors
-Notes:
+We can see what looks like an almost linear relationship between carat weight and price after doing some transformations, but there are other factors that influence the price of a diamond.
+
+Cut has a much more consequential impact on that fiery quality that jewellers describe when they talk about diamonds. 
+
+[What makes a diamond sparkle?](http://www.bluenile.com/diamonds/diamond-cut)
+
+[Does clarity affect the sparkle?](http://www.bluenile.com/diamonds/diamond-clarity)
+
+[What's a jeweler's loupe?](http://en.wikipedia.org/wiki/Loupe)
+
 
 ***
 
 ### Price vs. Carat and Clarity
+**Lets see if clarity, cut or color can explain some of the variance in price when we visualise it on our plot using color.**
 
-Alter the code below.
+#### Alter the code below.
+Adjust the code below to **color** the points by **clarity**.
+
+A layer called **scale_color_brewer()** has been added to adjust the legend and provide custom colors.
+
+[scale_colourbrewer](http://docs.ggplot2.org/current/scale_brewer.html)
+
+[Color Brewer Palettes and Safe Colors](http://www.cookbook-r.com/Graphs/Colors(ggplot2)/#palettes-color-brewer) 
+
+[Legends](http://www.cookbook-r.com/Graphs/Legends_(ggplot2)
+
 ```{r Price vs. Carat and Clarity}
 # install and load the RColorBrewer package
-install.packages('RColorBrewer')
+#install.packages('RColorBrewer')
 library(RColorBrewer)
 
-ggplot(aes(x = carat, y = price), data = diamonds) + 
+ggplot(aes(x = carat, y = price, color = clarity), data = diamonds) + 
   geom_point(alpha = 0.5, size = 1, position = 'jitter') +
   scale_color_brewer(type = 'div',
     guide = guide_legend(title = 'Clarity', reverse = T,
