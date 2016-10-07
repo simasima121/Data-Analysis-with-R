@@ -60,6 +60,7 @@ data$zip <- ifelse(nchar(data$zip) < 4,
 #subset(data$zip, nchar(data$zip) < 4)
 #unique(data$zip)
 
+
 mdata <- merge(data, zips[, c("zip","latitude","longitude", "state")], by = "zip")
 
 # removing zip codes that aren't from NY state
@@ -69,9 +70,11 @@ mdata <- subset(mdata, mdata$state == "NY")
 This report explores a dataset containing approximately 437000 Financial Contributions to the 2016 Presidential Campaigns.
 
 I retrieved US Zip Codes from this [website](https://www.gaslampmedia.com/download-zip-code-latitude-longitude-city-state-county-csv/).
+
 ***
 
 ## Univariate Plots Section
+
 ```{r echo=FALSE, Univariate_Plots}
 dim(mdata)
 str(mdata)
@@ -86,23 +89,57 @@ ggplot(aes(x = longitude, y = latitude),
   geom_point()
 ```
 
-From the plot, you can visualise the distribution of donations from NY State, however the boundaries could be more clear.
+From the plot, you can visualise the distribution of donations from NY State, however the boundaries could be more clear. I used a [tutorial on ggplot](https://uchicagoconsulting.wordpress.com/tag/r-ggplot2-maps-visualization/) to achieve this.
 
 ```{r Map of New York}
+# Choosing new york state
 all_states <- map_data("state")
 newyork <- subset(all_states, region %in% "new york")
 
 # Drawing silouhette of NY with contributor data points
 ggplot() +
   geom_polygon(data = newyork,
-               aes(x = long, y = lat, group = group),
-               colour = "grey") +
-  geom_point(aes(x = longitude, y = latitude, group = NULL, size = amount), 
+               aes(x = long, y = lat, group = group)) +
+  geom_jitter(aes(x = longitude, y = latitude, group = NULL), 
              data = subset(mdata, 
                      !is.na(mdata$zip)),
-             colour = "green",
-             alpha = 0.05) 
+             alpha = 1/50,
+             color = "coral1") +
+  geom_point(data = subset(us.cities,
+                           us.cities$country == "NY" & us.cities$pop > 100000),
+             aes(x = long, y = lat, size = pop),
+             colour = "green") +
+  geom_text(data = subset(us.cities,
+                          us.cities$country == "NY" & us.cities$pop > 100000),
+            aes(x = long, y = lat, label = name),
+            colour = "gold",
+            fontface="bold") 
+```
+From this data, you can see that the large cities have the highest frequency of contributions.
 
+
+From the initial plot, you can see there are negative amounts being displayed. This is because of refunds. There were 4722 refunds and we will explore them in further detail later.
+
+After removing the refunds, we see a positive skew in the distribution, with most of the money contributed between 15 to 100 Dollars. The median contribution is 27 with an IQR of 85. The mean is quite heavily skewed (probably due to v. large contributions).
+
+With the plot transformed using log, the distribution is normal with a peark around
+```{r }
+qplot(x = amount, data = mdata) +
+  scale_x_continuous(limits = c(-400, 400), breaks = seq(-400,400,50))
+
+dim(subset(mdata, mdata$amount < 0))
+
+qplot(x = amount, data = subset(mdata, amount >= 0)) +
+  scale_x_continuous(limits = c(0, 400), breaks = seq(0,400,20))
+
+# Summary with/without refunds.
+summary(mdata$amount)
+summary(subset(mdata$amount, mdata$amount >= 0))
+
+qplot(x = amount,
+      data = subset(mdata, amount > 0 & amount < 10000),
+      binwidth = 0.2) +
+  scale_x_log10()
 
 ```
 
