@@ -157,7 +157,6 @@ summary(subset(mdata$amount, mdata$amount >= 0))
 With the amount transformed using log10, we can see a normal distrubiton with a peak at 27.
 
 ```{r echo=FALSE, Amounts transformed with log without refunds}
-
 # Log transformed 
 ggplot(aes(amount),
        data = subset(mdata, amount > 0)) +
@@ -169,11 +168,13 @@ ggplot(aes(amount),
 
 ### Contributions to Male/Female Candidates
 
-We are now plotting contribution amounts wrapped by gender. 
+We are now exploring contribution amounts wrapped by gender. 
 
-As can be seen, both distributions have a very similar shape with the male category having a higher frequency of contributions at $30 & $50.
+As can be seen in the histograms, both distributions have a very similar shape (both had a positive skew) with the male category having a higher frequency of contributions at $30 & $50.
 
-From the summaries however, it can be seen that Females have a larger mean and median contribution amount.
+From the summaries and boxplots respectively, we can see that Females have a larger mean and median contribution amount. Females also have anomalies at higher amounts.
+
+From the frequency polygon, we get a clearer picture about the different amounts contributed to gender with females only having higher contributions at $20 and $70.
 ```{r echo=FALSE, Contributions to Male/Female Candidates}
 qplot(x = amount, data = subset(mdata, amount >= 0)) +
   scale_x_continuous(limits = c(0, 200), breaks = seq(0,200,20)) +
@@ -181,10 +182,53 @@ qplot(x = amount, data = subset(mdata, amount >= 0)) +
 
 table(mdata$gender)
 by(mdata$amount, mdata$gender, summary)
+
+qplot(x = gender, y = log10(amount),
+      data = subset(mdata, amount > 0),
+      geom = 'boxplot')
+
+qplot(x = amount, y = ..count..,
+      data = subset(mdata,  amount > 0), 
+      xlab = 'Amount Contributed',
+      ylab = 'Frequency',
+      binwidth = 10, 
+      geom = 'freqpoly', 
+      color = gender) + 
+  scale_x_continuous(lim = c(0, 200), breaks = seq(0, 200, 20)) 
+
 ```
 
 ### Contributions to Party's
 
+We are now exploring contribution amounts wrapped by Party's. 
+
+From the histogram, we can determine that the plots all have similar shapes with a positive skew. 
+
+From the Frequency polygon, we can see that the Democratic party has significantly more contributions than the Republicans (7.37 times more) and the Green party (1585 times more).
+
+From the summaries and boxplot, we can see that the Democrats have the lowest median and mean (27, 191 respectively) of the 3 parties. The next highest medians are the Republicans with a median of 50 although they have the highest mean of 241.5. The green party has a median of 104.0 and a mean of 201.8 although they received significantly less contributions.
+
+```{r echo=FALSE, Contributions to Party's}
+qplot(x = amount, data = subset(mdata, amount >= 0)) +
+  scale_x_continuous(limits = c(0, 200), breaks = seq(0,200,20)) +
+  facet_wrap(~party, scales = 'free')
+
+qplot(x = amount, y = ..count..,
+      data = subset(mdata,  amount > 0), 
+      xlab = 'Amount Contributed',
+      ylab = 'Frequency',
+      binwidth = 10, 
+      geom = 'freqpoly', 
+      color = party) + 
+  scale_x_continuous(lim = c(0, 200), breaks = seq(0, 200, 20)) 
+
+table(mdata$party)
+by(mdata$amount, mdata$party, summary)
+
+qplot(x = party, y = log10(amount),
+      data = subset(mdata, amount > 0),
+      geom = 'boxplot')
+```
 
 ## Univariate Analysis
 
@@ -200,12 +244,12 @@ by(mdata$amount, mdata$gender, summary)
 
 ***
 
-# Bivariate Plots Section
+## Bivariate Plots Section
 ```{r echo=FALSE, Bivariate_Plots}
 
 ```
 
-# Bivariate Analysis
+## Bivariate Analysis
 
 ### Talk about some of the relationships you observed in this part of the investigation. How did the feature(s) of interest vary with other features in the dataset?
 
@@ -216,13 +260,13 @@ by(mdata$amount, mdata$gender, summary)
 
 ***
 
-# Multivariate Plots Section
+## Multivariate Plots Section
 
 ```{r echo=FALSE, Multivariate_Plots}
 
 ```
 
-# Multivariate Analysis
+## Multivariate Analysis
 
 ### Talk about some of the relationships you observed in this part of the investigation. Were there features that strengthened each other in terms of looking at your feature(s) of interest?
 
