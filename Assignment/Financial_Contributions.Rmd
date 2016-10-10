@@ -36,6 +36,7 @@ library(maps) # Needed for plotting NY State
 setwd("/Users/Sim/Desktop/Nanodegrees/Data Analyst/Task 4/Data Analysis with R/Assignment/")
 data <- read.csv("NY_contributions.csv", row.names = NULL)
 zips <- read.csv("zip_codes_states.csv")
+parties <- read.csv("cand_gend_party.csv")
 
 # Remove incorrect column from the dataset
 colnames(data) <- c(colnames(data)[-1],"x")
@@ -60,11 +61,14 @@ data$zip <- ifelse(nchar(data$zip) < 4,
 #subset(data$zip, nchar(data$zip) < 4)
 #unique(data$zip)
 
-
 mdata <- merge(data, zips[, c("zip","latitude","longitude", "state")], by = "zip")
+mdata <- merge(mdata, parties, by = "cand_nm")
 
 # removing zip codes that aren't from NY state
 mdata <- subset(mdata, mdata$state == "NY")
+
+# Only interested in general and primary election from 2016
+mdata <- subset(mdata, mdata$election_tp == "P2016" | mdata$election_tp == "G2016")
 ```
 
 This report explores a dataset containing approximately 437000 Financial Contributions to the 2016 Presidential Campaigns.
@@ -81,7 +85,10 @@ str(mdata)
 summary(mdata)
 ```
 
-```{r Long and Lat}
+### Distribution in State
+
+In the plot below, you can visualise the distribution of donations from NY State, however it is uneasy to see both the state and city boundaries. 
+```{r echo=FALSE, Long and Lat}
 # Plotting the long and lat of the donations
 ggplot(aes(x = longitude, y = latitude), 
        data = subset(mdata, 
@@ -89,9 +96,10 @@ ggplot(aes(x = longitude, y = latitude),
   geom_point()
 ```
 
-From the plot, you can visualise the distribution of donations from NY State, however the boundaries could be more clear. I used a [tutorial on ggplot](https://uchicagoconsulting.wordpress.com/tag/r-ggplot2-maps-visualization/) to achieve this.
+To make the boundaries clearer, I used the following [tutorial on ggplot](https://uchicagoconsulting.wordpress.com/tag/r-ggplot2-maps-visualization/). 
 
-```{r Map of New York}
+From the plot, you can see that the larger cities have the highest frequency of contributions.
+```{r echo=FALSE, Map of New York}
 # Choosing new york state
 all_states <- map_data("state")
 newyork <- subset(all_states, region %in% "new york")
@@ -115,33 +123,67 @@ ggplot() +
             colour = "gold",
             fontface="bold") 
 ```
-From this data, you can see that the large cities have the highest frequency of contributions.
 
 
-From the initial plot, you can see there are negative amounts being displayed. This is because of refunds. There were 4722 refunds and we will explore them in further detail later.
+### Amount Contributed
 
-After removing the refunds, we see a positive skew in the distribution, with most of the money contributed between 15 to 100 Dollars. The median contribution is 27 with an IQR of 85. The mean is quite heavily skewed (probably due to v. large contributions).
+The next plot is used to visualise the amount of money being contributed. 
 
-With the plot transformed using log, the distribution is normal with a peark around
-```{r }
+From the plot, you can see there are negative amounts being displayed due to refunds (we will explore them in further detail later).
+
+```{r echo=FALSE, Amounts with refunds}
+# Plot with refunds
 qplot(x = amount, data = mdata) +
   scale_x_continuous(limits = c(-400, 400), breaks = seq(-400,400,50))
 
 dim(subset(mdata, mdata$amount < 0))
 
+# Summary with refunds.
+summary(mdata$amount)
+
+```
+
+After removing the refunds, we see a positive skew in the distribution, with most of the money contributed between 15 to 100 Dollars. The median contribution is 27 with an IQR of 85. The mean is quite heavily skewed (due to v. large contributions).
+
+```{r echo=FALSE, Amounts without refunds}
+# Plot without refunds
 qplot(x = amount, data = subset(mdata, amount >= 0)) +
   scale_x_continuous(limits = c(0, 400), breaks = seq(0,400,20))
 
-# Summary with/without refunds.
-summary(mdata$amount)
+# Summary without refunds.
 summary(subset(mdata$amount, mdata$amount >= 0))
-
-qplot(x = amount,
-      data = subset(mdata, amount > 0 & amount < 10000),
-      binwidth = 0.2) +
-  scale_x_log10()
-
 ```
+
+With the amount transformed using log10, we can see a normal distrubiton with a peak at 27.
+
+```{r echo=FALSE, Amounts transformed with log without refunds}
+
+# Log transformed 
+ggplot(aes(amount),
+       data = subset(mdata, amount > 0)) +
+  geom_histogram() +
+  scale_x_continuous(trans = log10_trans(),
+                     limits = c(1, 10000),
+                     breaks = c(0, 10, 100, 500, 1000, 10000)) 
+```
+
+### Contributions to Male/Female Candidates
+
+We are now plotting contribution amounts wrapped by gender. 
+
+As can be seen, both distributions have a very similar shape with the male category having a higher frequency of contributions at $30 & $50.
+
+From the summaries however, it can be seen that Females have a larger mean and median contribution amount.
+```{r echo=FALSE, Contributions to Male/Female Candidates}
+qplot(x = amount, data = subset(mdata, amount >= 0)) +
+  scale_x_continuous(limits = c(0, 200), breaks = seq(0,200,20)) +
+  facet_wrap(~gender)
+
+table(mdata$gender)
+by(mdata$amount, mdata$gender, summary)
+```
+
+### Contributions to Party's
 
 
 ## Univariate Analysis
