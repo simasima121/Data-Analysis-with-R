@@ -175,6 +175,7 @@ From the summaries and boxplots respectively, we can see that Females have a lar
 
 From the frequency polygon, we get a clearer picture about the different amounts contributed to gender with females only having higher contributions at $20 and $70.
 ```{r echo=FALSE, warning=FALSE, Contributions_by_Gender}
+# Histogram wrapped by gender
 qplot(x = amount, data = subset(mdata, amount >= 0)) +
   scale_x_continuous(limits = c(0, 200), breaks = seq(0,200,20)) +
   facet_wrap(~gender)
@@ -182,10 +183,12 @@ qplot(x = amount, data = subset(mdata, amount >= 0)) +
 table(mdata$gender)
 by(mdata$amount, mdata$gender, summary)
 
+# Boxplots
 qplot(x = gender, y = log10(amount),
       data = subset(mdata, amount > 0),
       geom = 'boxplot')
 
+# Frequency Plot
 qplot(x = amount, y = ..count..,
       data = subset(mdata,  amount > 0), 
       xlab = 'Amount Contributed',
@@ -208,10 +211,12 @@ From the Frequency polygon, we can see that the Democratic party has significant
 From the summaries and boxplot, we can see that the Democrats have the lowest median and mean (27, 191 respectively) of the 3 parties. The next highest medians are the Republicans with a median of 50 although they have the highest mean of 241.5. The green party has a median of 104.0 and a mean of 201.8 although they received significantly less contributions.
 
 ```{r echo=FALSE, warning=FALSE, Contributions_by_Party}
+# Histogram wrapped by party
 qplot(x = amount, data = subset(mdata, amount >= 0)) +
   scale_x_continuous(limits = c(0, 200), breaks = seq(0,200,20)) +
   facet_wrap(~party, scales = 'free')
 
+# Frequency Plot
 qplot(x = amount, y = ..count..,
       data = subset(mdata,  amount > 0), 
       xlab = 'Amount Contributed',
@@ -224,6 +229,7 @@ qplot(x = amount, y = ..count..,
 table(mdata$party)
 by(mdata$amount, mdata$party, summary)
 
+# Boxplots
 qplot(x = party, y = log10(amount),
       data = subset(mdata, amount > 0),
       geom = 'boxplot')
@@ -242,10 +248,10 @@ Observations:
 * Most contributions go to the Democratic Party.
 
 ### What is/are the main feature(s) of interest in your dataset?
-The main features in the dataset are amount, candidate and party. I'd like to determine which features are the best for predicting the contribution size.
+The main features in the dataset are amount, cand_nm and party. I'd like to determine which features are the best for predicting the contribution size.
 
 ### What other features in the dataset do you think will help support your investigation into your feature(s) of interest?
-Gender, occupation, candidate, zip and time will likely influence the contribution size.
+Gender, occupation, election_tp, zip and time will likely influence the contribution size.
 
 ### Did you create any new variables from existing variables in the dataset?
 
@@ -261,8 +267,139 @@ I inserted columns into the data to hold the longitude/latitude of zipcodes as w
 
 ## Bivariate Plots Section
 ```{r echo=FALSE, Bivariate_Plots}
+#theme_set(theme_minimal(20))
+#set.seed(1836)
+#head(mdata[,c(1:2,9:10,18,22:23)])
+
+#m_subset <- mdata[,c(1:2,9:10,18,22:23)]
+#names(m_subset)
+#ggpairs(m_subset[sample.int(nrow(m_subset), 20), ])
+```
+
+
+### Party Contributions and Refunds
+
+```{r echo=FALSE, Creating table for party}
+# Without Refunds
+mdata.by_party <- subset(mdata, mdata$amount >= 0) %>%
+  group_by(party) %>%
+  summarise(amount_sum = sum(amount),
+            amount_mean = mean(amount),
+            amount_median = median(amount),
+            n = n()) %>%
+  arrange(party)
+
+# With refunds
+mdata.by_party_refunds <- subset(mdata, mdata$amount < 0) %>%
+  group_by(party) %>%
+  summarise(amount_sum = sum(amount),
+            amount_mean = mean(amount),
+            amount_median = median(amount),
+            n = n()) %>%
+  arrange(party)
+mdata.by_party
+mdata.by_party_refunds
+```
+
+#### Contributions
+```{r echo=FALSE, Party Contributions}
+# Making exp scale stop
+getOption("scipen")
+opt <- options("scipen" = 20)
+
+p1 <- ggplot(mdata.by_party, aes(party, amount_sum, fill = party)) + 
+  geom_bar(stat="identity") +
+  xlab("Party") +
+  ylab("Total Contributions") +
+  ggtitle("2016 US Election Contribution by Parties") +
+  scale_y_continuous(breaks = seq(0, 80000000, 10000000))
+
+p2 <- ggplot(mdata.by_party, aes(party, amount_mean, fill = party)) + 
+  geom_bar(stat="identity") +
+  xlab("Party") +
+  ylab("Mean Contributions") +
+  ggtitle("2016 US Election Contribution by Parties")
+
+p3 <- ggplot(mdata.by_party, aes(party, amount_median, fill = party)) + 
+  geom_bar(stat="identity") +
+  xlab("Party") +
+  ylab("Median Contributions") +
+  ggtitle("2016 US Election Contribution by Parties")
+
+grid.arrange(p1,p2,p3, ncol=1)
 
 ```
+
+#### Refunds
+```{r echo=FALSE, Party Refunds}
+p1 <- ggplot(mdata.by_party, aes(party, amount_sum, fill = party)) + 
+  geom_bar(stat="identity") +
+  xlab("Party") +
+  ylab("Total Contributions") +
+  ggtitle("2016 US Election Contribution by Parties") +
+  scale_y_continuous(breaks = seq(0, 80000000, 10000000))
+
+p2 <- ggplot(mdata.by_party, aes(party, amount_mean, fill = party)) + 
+  geom_bar(stat="identity") +
+  xlab("Party") +
+  ylab("Mean Contributions") +
+  ggtitle("2016 US Election Contribution by Parties")
+
+p3 <- ggplot(mdata.by_party, aes(party, amount_median, fill = party)) + 
+  geom_bar(stat="identity") +
+  xlab("Party") +
+  ylab("Median Contributions") +
+  ggtitle("2016 US Election Contribution by Parties")
+```
+
+### Candidate Contributions and Refunds
+
+```{r echo=FALSE, Creating table for Candidates}
+mdata.by_candidate <- mdata %>%
+  group_by(cand_nm) %>%
+  summarise(amount_sum = sum(amount),
+            amount_mean = mean(amount),
+            amount_median = median(amount),
+            n = n()) %>%
+  arrange(cand_nm)
+mdata.by_candidate
+```
+
+#### Contributions
+```{r echo=FALSE, Candidate Contributions}
+
+```
+
+#### Refunds
+```{r echo=FALSE, Candidate Refunds}
+
+```
+
+### Gender Contributions and Refunds
+
+```{r echo=FALSE, Creating table for party}
+mdata.by_gender <- mdata %>%
+  group_by(gender) %>%
+  summarise(amount_sum = sum(amount),
+            amount_mean = mean(amount),
+            amount_median = median(amount),
+            n = n()) %>%
+  arrange(gender)
+mdata.by_gender
+```
+
+#### Contributions
+```{r echo=FALSE, Gender Contributions}
+
+```
+
+#### Refunds
+```{r echo=FALSE, Gender Refunds}
+
+```
+
+### Occupation Contributions 
+
 
 ## Bivariate Analysis
 
