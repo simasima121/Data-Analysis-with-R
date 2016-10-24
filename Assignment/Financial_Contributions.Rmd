@@ -73,6 +73,17 @@ mdata <- subset(mdata, mdata$state == "NY")
 # Only interested in general and primary election from 2016
 mdata <- subset(mdata, mdata$election_tp == "P2016" | mdata$election_tp == "G2016")
 
+mdata$cmte_id <- NULL
+mdata$cand_id <- NULL
+mdata$contbr_nm <- NULL
+mdata$city <- NULL
+mdata$st <- NULL
+mdata$employer <- NULL
+mdata$memo_cd <- NULL
+mdata$form_tp <- NULL
+mdata$file_num <- NULL
+mdata$tran_id <- NULL
+
 # remove redundant dataframes
 remove(data, zips, parties)
 ```
@@ -89,7 +100,6 @@ summary(mdata)
 
 ### Distribution in State
 
-In the plot below, you can visualise the distribution of donations from NY State, however it is uneasy to see both the state and city boundaries. 
 ```{r echo=FALSE, warning=FALSE, Long_and_Lat}
 # Plotting the long and lat of the donations
 ggplot(aes(x = longitude, y = latitude), 
@@ -97,10 +107,10 @@ ggplot(aes(x = longitude, y = latitude),
                      !is.na(mdata$zip))) +
   geom_point()
 ```
+In the plot above, you can visualise the distribution of donations from NY State, however it is uneasy to see both the state and city boundaries. 
 
 To make the boundaries clearer, I used the following [tutorial](https://uchicagoconsulting.wordpress.com/tag/r-ggplot2-maps-visualization/). 
 
-From the plot, you can see that the largest cities have the highest frequency of contributions.
 ```{r echo=FALSE, warning=FALSE, Map_of_New_York}
 # Choosing new york state
 all_states <- map_data("state")
@@ -129,12 +139,11 @@ ggplot() +
             fontface="bold")
 ```
 
+From the plot, you can see that the largest cities have the highest frequency of contributions.
 
 ### Amount Contributed
 
 The next plot is used to visualise the amount of money being contributed. 
-
-From the plot, you can see there are negative amounts being displayed due to refunds (we will explore them in further detail later).
 
 ```{r echo=FALSE, warning=FALSE, Amounts_with_refunds}
 # Plot with refunds
@@ -148,7 +157,7 @@ summary(mdata$amount)
 
 ```
 
-After removing the refunds, we see a positive skew in the distribution, with most of the money contributed between $15-$100. The median contribution is 27 with an IQR of 85. The mean is quite heavily skewed (due to v. large contributions).
+From the plot, you can see there are negative amounts being displayed due to refunds (we will explore them in further detail later).
 
 ```{r echo=FALSE, warning=FALSE, Amounts_without_refunds}
 # Plot without refunds
@@ -159,7 +168,7 @@ qplot(x = amount, data = subset(mdata, amount >= 0)) +
 summary(subset(mdata$amount, mdata$amount >= 0))
 ```
 
-With the amount transformed using log10, we can see a normal distrubiton with a peak at 27.
+With the refunds removed, we see a positive skew in the distribution, with most of the money contributed between $15-$100. The median contribution is 27 with an IQR of 85. The mean is quite heavily skewed (due to v. large contributions).
 
 ```{r echo=FALSE, warning=FALSE, Amounts_transformed_with_log_without_refunds}
 # Log transformed 
@@ -171,21 +180,23 @@ ggplot(aes(amount),
                      breaks = c(0, 10, 100, 500, 1000, 10000)) 
 ```
 
+Transforming the x axis using log10, we can see a normal distrubiton with a peak at 27.
+
 ### Contributions by Gender
 
-We are now exploring contribution amounts by gender. 
+I was interested in determining whether contributions varied by gender.
 
-As can be seen in the histograms, both distributions have a very similar shape (both had a positive skew) with the male category having a higher frequency of contributions at $30 & $50.
-
-From the summaries and boxplots respectively, we can see that Females have a larger mean and median contribution amount. Females also have anomalies at higher amounts.
-
-From the frequency polygon, we get a clearer picture about the different amounts contributed to gender with females only having higher contributions at $20 and $70.
 ```{r echo=FALSE, warning=FALSE, Contributions_by_Gender}
 # Histogram wrapped by gender
 qplot(x = amount, data = subset(mdata, amount >= 0)) +
   scale_x_continuous(limits = c(0, 200), breaks = seq(0,200,20)) +
   facet_wrap(~gender)
 
+```
+
+As can be seen in the histograms, both distributions have a very similar shape (both had a positive skew) with the male category having a higher frequency of contributions at $30 & $50.
+
+```{r echo=FALSE, warning=FALSE, Contributions_by_Gender_Summary}
 table(mdata$gender)
 by(mdata$amount, mdata$gender, summary)
 
@@ -193,7 +204,11 @@ by(mdata$amount, mdata$gender, summary)
 qplot(x = gender, y = log10(amount),
       data = subset(mdata, amount > 0),
       geom = 'boxplot')
+```
 
+From the summaries and boxplots respectively, we can see that Females have a larger mean and median contribution amount. Females also have anomalies at higher amounts.
+
+```{r echo=FALSE, warning=FALSE, Contributions_by_Gender_Freq}
 # Frequency Plot
 qplot(x = amount, y = ..count..,
       data = subset(mdata,  amount > 0), 
@@ -205,15 +220,11 @@ qplot(x = amount, y = ..count..,
   scale_x_continuous(lim = c(0, 200), breaks = seq(0, 200, 20)) 
 ```
 
+From the frequency polygon, we get a clearer picture about the different amounts contributed to gender with females only having higher contributions at $20 and $70.
+
 ### Contributions by Candidate
 
 We are now exploring contribution amounts by candidate. 
-
-As can be seen in the histograms, there is great variance in the distributions once transformed using log.
-
-From the summaries, we can see that Bernie Sanders and Hilary Clinton have the frequency of contributions.
-
-From the boxplots, we can see that Hilary Clinton has the greatest value of outliers and that the medians of all the candidates vary greatly.
 
 ```{r echo=FALSE, warning=FALSE, Contributions_by_Candidate}
 # Histogram wrapped by candidate
@@ -221,10 +232,18 @@ qplot(x = amount, data = subset(mdata, amount >= 0)) +
   scale_x_continuous(limits = c(0, 200), breaks = seq(0,200,20)) +
   scale_x_log10() +
   facet_wrap(~cand_nm, scales ="free")
+```
 
+As can be seen in the histograms, there is great variance in the distributions once transformed using log.
+
+```{r echo=FALSE, warning=FALSE, Contributions_by_Candidate_summary}
 table(mdata$cand_nm)
 by(mdata$amount, mdata$cand_nm, summary)
+```
 
+From the summaries, we can see that Bernie Sanders and Hilary Clinton have the frequency of contributions.
+
+```{r echo=FALSE, warning=FALSE, Contributions_by_Candidate_boxplot}
 # Boxplots
 qplot(x = cand_nm, y = log10(amount),
       data = subset(mdata, amount > 0),
@@ -232,15 +251,11 @@ qplot(x = cand_nm, y = log10(amount),
   theme(axis.text.x=element_text(size=6), legend.position = "none")
 ```
 
+From the boxplots, we can see that Hilary Clinton has the greatest value of outliers and that the medians of all the candidates vary greatly.
+
 ### Contributions by Party
 
 We are now exploring contribution amounts by Party. 
-
-From the histogram, we can determine that the plots all have similar shapes with a positive skew. 
-
-From the Frequency polygon, we can see that the Democratic party has significantly more contributions than the Republicans (7.37 times more) and the Green party (1585 times more).
-
-From the summaries and boxplot, we can see that the Democrats have the lowest median and mean (27, 191 respectively) of the 3 parties. The next highest medians are the Republicans with a median of 50 although they have the highest mean of 241.5. The green party has a median of 104.0 and a mean of 201.8 although they received significantly less contributions.
 
 ```{r echo=FALSE, warning=FALSE, Contributions_by_Party}
 # Histogram wrapped by party
@@ -248,6 +263,11 @@ qplot(x = amount, data = subset(mdata, amount >= 0)) +
   scale_x_continuous(limits = c(0, 200), breaks = seq(0,200,20)) +
   facet_wrap(~party, scales = 'free')
 
+```
+
+From the histogram, we can determine that the plots all have similar shapes with a positive skew. 
+
+```{r echo=FALSE, warning=FALSE, Contributions_by_Party_freqplot}
 # Frequency Plot
 qplot(x = amount, y = ..count..,
       data = subset(mdata,  amount > 0), 
@@ -257,7 +277,11 @@ qplot(x = amount, y = ..count..,
       geom = 'freqpoly', 
       color = party) + 
   scale_x_continuous(lim = c(0, 200), breaks = seq(0, 200, 20)) 
+```
 
+From the Frequency polygon, we can see that the Democratic party has significantly more contributions than the Republicans (7.37 times more) and the Green party (1585 times more).
+
+```{r echo=FALSE, warning=FALSE, Contributions_by_Party_summary}
 table(mdata$party)
 by(mdata$amount, mdata$party, summary)
 
@@ -267,10 +291,37 @@ qplot(x = party, y = log10(amount),
       geom = 'boxplot')
 ```
 
+From the summaries and boxplot, we can see that the Democrats have the lowest median and mean (27, 191 respectively) of the 3 parties. The next highest medians are the Republicans with a median of 50 although they have the highest mean of 241.5. The green party has a median of 104.0 and a mean of 201.8 although they received significantly less contributions.
+
+### Contributions by Date
+
+```{r echo=FALSE, warning=FALSE, Contributions_by_Date}
+# Setting up date data.
+dates <- as.Date(mdata$date, "%d-%b-%Y")
+
+mdata$day <- as.numeric(format(dates, format = "%d"))
+mdata$month <- as.numeric(format(dates, format = "%m"))
+mdata$year <- as.numeric(format(dates, format = "%Y"))
+
+# Seeing how many donations by year
+table(mdata$year,mdata$month)
+
+# Plotting by month
+ggplot(data = subset(mdata, mdata$year > 14), aes(x = month)) + 
+  geom_histogram(binwidth = 1) + 
+  scale_x_continuous(breaks = 1:12)  +
+  facet_wrap(~year)
+
+```
+
+From the histogram and table, we can see that contributions started around April 2015 and increased consistently throughout the year. In 2016, the contributions count was much higher and peaked around April, this is likely due to the Primary Election finishing then.
+
+The lack of peaks after August 2016 is due to the data not being available (I downloaded the data in September).
+
 ## Univariate Analysis
 
 ### What is the structure of your dataset?
-There are 428646 contributions in the dataset with 23 features. 
+There are 428646 contributions in the dataset with 16 features. 
 
 Observations:
 
@@ -279,14 +330,16 @@ Observations:
 * Contributions are spread almost equally across gender.
 * Most contributions go to the Democratic Party.
 * Contributions mainly go to the same few candidates.
+* The contribution amounts increased with every month until the Primary Elections and have remained high since.
 
 ### What is/are the main feature(s) of interest in your dataset?
-The main features in the dataset are amount, cand_nm and party. I'd like to determine which features influence whether a contribution is given.
+The main features in the dataset are amount, candidate and party. 
 
 ### What other features in the dataset do you think will help support your investigation into your feature(s) of interest?
-Gender, occupation, election_tp, zip and time will likely influence whether a contribution is given.
+Gender, occupation, zip and date will likely influence contributions.
 
 ### Did you create any new variables from existing variables in the dataset?
+I created variables to find the 
 
 ### Of the features you investigated, were there any unusual distributions? Did you perform any operations on the data to tidy, adjust, or change the form of the data? If so, why did you do this?
 
@@ -296,15 +349,15 @@ I adjusted column names to make them less verbose and removed rows that had data
 
 I inserted columns into the data to hold the longitude/latitude of zipcodes as well as gender and party of candidates. I did this so I could plot the contributions on a map over NY state and so that I could determine how the contributions were split between parties and gender of the candidates.
 
+There was a particularly unusual distribution for the median amounts refunded for 6 candidates.
+
 ***
 
 ## Bivariate Plots Section
 
 ### Contributions by Zip
 
-From the plot, it is clear that larger donations come from heavily populated areas.
-
-```{r echo=FALSE}
+```{r echo=FALSE, warning=FALSE}
 # Drawing silouhette of NY with contributor data points
 ggplot() +
   geom_polygon(data = newyork,
@@ -323,9 +376,11 @@ ggplot() +
             fontface="bold")
 ```
 
+From the plot, it is clear that larger donations come from heavily populated areas.
+
 ### Contributions and Redesignate/Refunds by Party
 
-```{r echo=FALSE, Creating_table_for_party}
+```{r echo=FALSE, warning=FALSE, Creating_table_for_party}
 # Without Refunds
 mdata.by_party <- subset(mdata, mdata$amount >= 0) %>%
   group_by(party) %>%
@@ -377,7 +432,7 @@ As discussed earlier, the Democrats had almost 7.5 times as many contributions c
 
 This data shows that the total contribution amount was greatest for the Democrats, however the Republicans received more money per contribution. **Does this suggest richer people donate to the Republicans?**
 
-```{r echo=FALSE, Party_Contributions}
+```{r echo=FALSE, warning=FALSE, Party_Contributions}
 p1 <- ggplot(merged_party, aes(party, c_amount_sum, fill = party)) + 
   geom_bar(stat="identity") +
   xlab("Party") +
@@ -411,7 +466,7 @@ The means of the refunds followed this with the Republicans having the highest m
 
 The medians of the refunds for the Republicans were highest at $484 followed by the Democrats at $100.
 
-```{r echo=FALSE, Party_Refunds}
+```{r echo=FALSE, warning=FALSE, Party_Refunds}
 p1 <- ggplot(merged_party, aes(party, r_amount_sum, fill = party)) + 
   geom_bar(stat="identity") +
   xlab("Party") +
@@ -440,7 +495,7 @@ merged_party[c(1,6:9)]
 
 From the barchart, we can see that the Ratio of contributions to refunds is greater for the Democrats than it is for the Republicans for both amount and frequency. 
 
-```{r echo=FALSE, Party_Ratio}
+```{r echo=FALSE, warning=FALSE, Party_Ratio}
 p1 <- ggplot(merged_party, aes(party, total_ratio, fill = party)) + 
   geom_bar(stat="identity") +
   xlab("Party") +
@@ -461,7 +516,7 @@ merged_party[c(1,5,9,10:11)]
 
 ### Contributions and Redesignate/Refunds by Candidate
 
-```{r echo=FALSE, Creating_table_for_Candidates}
+```{r echo=FALSE, warning=FALSE, Creating_table_for_Candidates}
 # Without Refunds
 mdata.by_candidate <- subset(mdata, mdata$amount >= 0) %>%
   group_by(cand_nm, party) %>%
@@ -506,7 +561,7 @@ remove(mdata.by_candidate, mdata.by_candidate_refunds)
 
 From the bar charts and tables of data, we can see that Hilary Clinton had the highest contributions amount (approx $65MM) followed by Bernie Sanders ($8MM), with Jeb Bush, Rubio Marco, Donald Trump and Ted Cruz raising between $3.5MM - $2MM. We can also see that most candidates raised less than $1MM in donations (13 out of 19).
 
-```{r echo=FALSE, Candidate_Contributions}
+```{r echo=FALSE, warning=FALSE, Candidate_Contributions}
 ggplot(merged_candidate, aes(cand_nm, c_amount_sum, fill = cand_nm)) + 
   geom_bar(stat="identity") +
   xlab("Candidate") +
@@ -525,7 +580,7 @@ The candidates with the lowest medians are Hilary Clinton and Bernie Sanders, al
 
 There is a strong correlation between total amount contributed and number of contributors (0.81).
 
-```{r echo=FALSE, Candidate_Contributions_Means}
+```{r echo=FALSE, warning=FALSE, Candidate_Contributions_Means}
 p1 <- ggplot(subset(merged_candidate, merged_candidate$c_amount_sum > 1000000), aes(cand_nm, c_amount_mean, fill = cand_nm)) + 
   geom_bar(stat="identity") +
   xlab("Candidate") +
@@ -554,7 +609,7 @@ From the barchart, we can see that Marco Rubio had the highest amount of refunds
 
 You can also see that various candidates had no refunds.
 
-```{r echo=FALSE}
+```{r echo=FALSE, warning=FALSE}
 ggplot(merged_candidate, aes(cand_nm, r_amount_sum, fill = cand_nm)) + 
   geom_bar(stat="identity") +
   xlab("Candidate") +
@@ -577,7 +632,7 @@ The lowest median refunds were for Hilary Clinton and Ted Cruz at $50 (excluding
 
 There is a strong correlation between total amount refunded and number of refunds (0.75).
 
-```{r echo=FALSE, Candidate_Refunds}
+```{r echo=FALSE, warning=FALSE, Candidate_Refunds}
 p1 <- ggplot(merged_candidate, aes(cand_nm, r_amount_mean, fill = cand_nm)) + 
   geom_bar(stat="identity") +
   xlab("Candidate") +
@@ -609,7 +664,7 @@ I decided to look at the jobs the people had and found that most were in positio
 
 I also found that a lot had their money redignated to the general as opposed to refunded.
 
-```{r echo=FALSE}
+```{r echo=FALSE, warning=FALSE}
 interesting_candidates <- subset(mdata, 
                                  mdata$cand_nm == "Bush, Jeb" |
                                  mdata$cand_nm == "Graham, Lindsey O." |
@@ -636,7 +691,7 @@ From the Total Contributions barchart, we can see that the ratio is greatest for
 
 From the Number of Contributions barchart, we can see that Donald Trump has the highest ratio at 198. He is followed by Bernie Sanders at 149 and then Hilary Clinton at 90.
 
-```{r echo=FALSE, Cand_Ratio}
+```{r echo=FALSE,warning=FALSE, Cand_Ratio}
 p1 <- ggplot(subset(merged_candidate, merged_candidate$c_amount_sum > 1000000), aes(cand_nm, total_ratio, fill = cand_nm)) + 
   geom_bar(stat="identity") +
   xlab("Party") +
@@ -660,7 +715,7 @@ subset(merged_candidate, merged_candidate$c_amount_sum > 1000000)[c(1,6,10,11:12
 
 ### Contributions and Redesignate/Refunds by Gender
 
-```{r echo=FALSE, Creating_table_for_gender}
+```{r echo=FALSE,warning=FALSE, Creating_table_for_gender}
 mdata.by_gender <- subset(mdata, mdata$amount >= 0) %>%
   group_by(gender) %>%
   summarise(amount_sum = sum(amount),
@@ -709,7 +764,7 @@ The median contributions are larger for females at $38 to males $27.
 
 These results are especially suprising due to females only making up 2 of the 19 candidates. **Is it one particular candidate who is getting all the contributions for females? We know Hilary has the most contributions of any candidate by far.** 
 
-```{r echo=FALSE, Gender_Contributions}
+```{r echo=FALSE,warning=FALSE, Gender_Contributions}
 p1 <- ggplot(merged_gender, aes(gender, c_amount_sum, fill = gender)) + 
   geom_bar(stat="identity") +
   xlab("Gender") +
@@ -740,7 +795,7 @@ merged_gender[1:5]
 The graphs show that males are getting more refunds by total amount, mean and median. 
 
 As males and females have a frequency of contributions, this would suggest that large contributors are taking back large portions of money compared to female candidates contributors. **Can we prove this?**
-```{r echo=FALSE, Gender_Refunds}
+```{r echo=FALSE,warning=FALSE, Gender_Refunds}
 p1 <- ggplot(merged_gender, aes(gender, r_amount_sum, fill = gender)) + 
   geom_bar(stat="identity") +
   xlab("Gender") +
@@ -773,7 +828,7 @@ From the Number of Contribution Barchart, we can see that they both had almost t
 
 To check this, I did another plot of the actual refunds and found that for females, there were many more refunds at lower values i.e. less than $500 whereas for males, there was almost as many refunds at $200 as there were at $2800. This further validates the theory that larger donors were Redesignate/Refunding money from male candidates whereas smaller donors were Redesignate/Refunding money from females.
 
-```{r echo=FALSE}
+```{r echo=FALSE, warning=FALSE}
 p1 <- ggplot(merged_gender, aes(gender, total_ratio, fill = gender)) + 
   geom_bar(stat="identity") +
   xlab("Gender") +
@@ -849,7 +904,7 @@ The strongest relationship I found was between candidate and amount as a single 
 
 From the silouhetter below, it seems that contributions from larger cities were more likely to contribute to the Democrats whereas areas out of the big cities were more likely to contribute to the Republicans.
 
-```{r echo=FALSE}
+```{r echo=FALSE, warning=FALSE}
 # Drawing silouhette of NY with contributor data points
 ggplot() +
   geom_polygon(data = newyork,
@@ -875,7 +930,7 @@ For the Republicans, you can see there's a great difference between the number o
 
 For the democrats, the candidates with the highest number of contributions also had the highest contribution amount, however, Hilary had ~10% greater contributions than Bernie but almost %400 greater contribution amount.
 
-```{r echo=FALSE, Cntbtn_By_P_and_C}
+```{r echo=FALSE, warning=FALSE, Cntbtn_By_P_and_C}
 p1 <- ggplot(subset(merged_candidate, merged_candidate$party == "R"), aes(cand_nm, c_count, fill = cand_nm)) + 
   geom_bar(stat="identity") +
   xlab("Candidate") +
@@ -915,35 +970,93 @@ grid.arrange(p1,p2, p3,p4, ncol=2)
 
 #### Top 4 Candidates by Number of Contributions
 
-I wanted to see how the contribution varied over time for the top 4 most contributed candidates.
+I wanted to see how the contributions varied over time for the top 4 most contributed candidates.
 
-From tabling and plotting the data, we can see that contributions started coming regularly from April 2015. 
+From the initial bar plot, we can see that most contributions came within a 12 month period from August 2015 to August 2016. We can also see that Democrats were getting much more contributions throughout.
 
-```{r echo=FALSE, Top_4_Candidates}
+From the 12 month period, we can see that Bernie Sanders was getting the most contributions followed by Hilary Clinton however, after month 5 2016 (primary election ended), it can be seen that Hilary Clinton overwhelmingly got more contributions. The same can be seen for the Republicans with Ted Cruz getting more contributions until the primary's ended (when he lost) after which Donald Trump got more contributions.
+
+```{r echo=FALSE, warning=FALSE, Top_4_Candidates}
 ### Idea is to create a line plot following the average number of contributions per month, or average number of contributions per week, per candidate and seeing how they vary against each other. This will be the final plot.
 top_cont <- subset(mdata, 
                    cand_nm == "Clinton, Hillary Rodham" |
                    cand_nm == "Sanders, Bernard" |
                    cand_nm == "Trump, Donald J." |
-                   cand_nm == "Cruz, Rafael Edward 'Ted'" )
+                   cand_nm == "Cruz, Rafael Edward 'Ted'" &
+                   year >= 15)
 
-# Setting up date data.
-dates <- as.Date(top_cont$date, "%d-%b-%Y")
-
-top_cont$day <- as.numeric(format(dates, format = "%d"))
-top_cont$month <- as.numeric(format(dates, format = "%m"))
-top_cont$year <- as.numeric(format(dates, format = "%Y"))
-
-# Seeing how many donations by year
-table(top_cont$year,top_cont$month)
+# Cleaning up the dataframe
+top_cont$zip <- NULL
+top_cont$occupation <- NULL
+top_cont$receipt_desc <- NULL
+top_cont$memo_text <- NULL
 
 # Plotting by year
-ggplot(data = top_cont, aes(x = month)) + 
-  geom_histogram(binwidth = 1) + 
+ggplot(data = top_cont,
+       aes(x = month)) + 
+  geom_histogram(binwidth = 1, aes(fill = cand_nm, color = party)) + 
   scale_x_continuous(breaks = 1:12)  +
-  facet_wrap(~year)
+  facet_wrap(~year) 
 ```
 
+By looking at the data over the 20 month period, some interesting things emerge. 
+
+The first is that for a large part of the election, Bernie Sanders was getting more contributions than Hilary Clinton, yet she was still receiving more money which is in line with our earlier findings. Another interesting find is that both Primary winners had less number of contributions yet still won. This is not to say they had less total money however (Hilary had higher contribution amounts, Trump was self funding).
+
+The second interesting thing is that most refund/redesignations seem to happen after month 17 when the median and mean contribution amounts go negative. This is likely due to the Primary Results.
+
+```{r echo=FALSE, warning=FALSE, Top_4_Candidates_Monthly}
+# Standardize months from 2015 - 2016. Months in 2016 + 12.
+top_cont$s_m <- ifelse(top_cont$year > 15,
+                       top_cont$month + 12,
+                       top_cont$month)
+
+tc.amount_by_month <- top_cont %>%
+  group_by(cand_nm, s_m) %>%
+  summarise(amount_sum = sum(amount),
+            amount_mean = mean(amount),
+            amount_median = median(amount),
+            n = n()) %>%
+  arrange(s_m)
+
+# The number of contributions per month per candidate. x = month, y = average per candidate, color = candidate
+p1 <- ggplot(data = tc.amount_by_month,
+       aes(x = s_m, y = n)) + 
+  geom_line(aes(color = cand_nm)) + 
+  scale_x_continuous(breaks = 1:21) +
+  xlab("Month") +
+  ylab("Number of Contributions") +
+  ggtitle("Monthly Number of Contributions") 
+
+p2 <- ggplot(data = tc.amount_by_month,
+       aes(x = s_m, y = amount_sum)) + 
+  geom_line(aes(color = cand_nm)) + 
+  scale_x_continuous(breaks = 1:21) +
+  xlab("Month") +
+  ylab("Contribution Amount") +
+  ggtitle("Monthly Total Contribution Amount") 
+
+grid.arrange(p1,p2, ncol = 1)
+
+# The average amount per month per candidate. x = month, y = average per candidate, color = candidate
+p3 <- ggplot(data = tc.amount_by_month,
+       aes(x = s_m, y = amount_mean)) + 
+  geom_line(aes(color = cand_nm)) + 
+  scale_x_continuous(breaks = 1:21) +
+  xlab("Month") +
+  ylab("Contribution Amount") +
+  ggtitle("Monthly Mean Contributions") 
+
+p4 <- ggplot(data = tc.amount_by_month,
+       aes(x = s_m, y = amount_median)) + 
+  geom_line(aes(color = cand_nm)) + 
+  scale_x_continuous(breaks = 1:21) +
+  xlab("Month") +
+  ylab("Contribution Amount") +
+  ggtitle("Monthly Median Contributions") 
+
+grid.arrange(p3,p4, ncol = 1)
+```
 
 
 ## Multivariate Analysis
@@ -951,8 +1064,6 @@ ggplot(data = top_cont, aes(x = month)) +
 ### Talk about some of the relationships you observed in this part of the investigation. Were there features that strengthened each other in terms of looking at your feature(s) of interest?
 
 ### Were there any interesting or surprising interactions between features?
-
-### OPTIONAL: Did you create any models with your dataset? Discuss the strengths and limitations of your model.
 
 ***
 
