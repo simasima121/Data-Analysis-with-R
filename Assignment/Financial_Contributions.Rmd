@@ -107,7 +107,8 @@ ggplot(aes(x = longitude, y = latitude),
                      !is.na(mdata$zip))) +
   geom_point()
 ```
-In the plot above, you can visualise the distribution of donations from NY State, however it is uneasy to see both the state and city boundaries. 
+In the plot above, you can visualise the distribution of donations from NY 
+State, however it is uneasy to see both the state and city boundaries. 
 
 To make the boundaries clearer, I used the following [tutorial](https://uchicagoconsulting.wordpress.com/tag/r-ggplot2-maps-visualization/). 
 
@@ -139,7 +140,8 @@ ggplot() +
             fontface="bold")
 ```
 
-From the plot, you can see that the largest cities have the highest frequency of contributions.
+From the plot, you can see that the largest cities have the highest frequency
+of contributions.
 
 ### Amount Contributed
 
@@ -157,7 +159,8 @@ summary(mdata$amount)
 
 ```
 
-From the plot, you can see there are negative amounts being displayed due to refunds (we will explore them in further detail later).
+From the plot, you can see there are negative amounts being displayed due to
+refunds (we will explore them in further detail later).
 
 ```{r echo=FALSE, warning=FALSE, Amounts_without_refunds}
 # Plot without refunds
@@ -168,7 +171,9 @@ qplot(x = amount, data = subset(mdata, amount >= 0)) +
 summary(subset(mdata$amount, mdata$amount >= 0))
 ```
 
-With the refunds removed, we see a positive skew in the distribution, with most of the money contributed between $15-$100. The median contribution is 27 with an IQR of 85. The mean is quite heavily skewed (due to v. large contributions).
+With the refunds removed, we see a positive skew in the distribution, with most
+of the money contributed between $15-$100. The median contribution is 27 with
+an IQR of 85. The mean is quite heavily skewed (due to v. large contributions).
 
 ```{r echo=FALSE, warning=FALSE, Amounts_transformed_with_log_without_refunds}
 # Log transformed 
@@ -180,7 +185,8 @@ ggplot(aes(amount),
                      breaks = c(0, 10, 100, 500, 1000, 10000)) 
 ```
 
-Transforming the x axis using log10, we can see a normal distrubiton with a peak at 27.
+Transforming the x axis using log10, we can see a normal distrubiton with a peak
+at 27.
 
 ### Contributions by Gender
 
@@ -194,7 +200,9 @@ qplot(x = amount, data = subset(mdata, amount >= 0)) +
 
 ```
 
-As can be seen in the histograms, both distributions have a very similar shape (both had a positive skew) with the male category having a higher frequency of contributions at $30 & $50.
+As can be seen in the histograms, both distributions have a very similar shape
+(both had a positive skew) with the male category having a higher frequency of
+contributions at $30 & $50.
 
 ```{r echo=FALSE, warning=FALSE, Contributions_by_Gender_Summary}
 table(mdata$gender)
@@ -206,7 +214,9 @@ qplot(x = gender, y = log10(amount),
       geom = 'boxplot')
 ```
 
-From the summaries and boxplots respectively, we can see that Females have a larger mean and median contribution amount. Females also have anomalies at higher amounts.
+From the summaries and boxplots respectively, we can see that Females have a
+larger mean and median contribution amount. Females also had anomalies at 
+higher amounts.
 
 ```{r echo=FALSE, warning=FALSE, Contributions_by_Gender_Freq}
 # Frequency Plot
@@ -220,7 +230,9 @@ qplot(x = amount, y = ..count..,
   scale_x_continuous(lim = c(0, 200), breaks = seq(0, 200, 20)) 
 ```
 
-From the frequency polygon, we get a clearer picture about the different amounts contributed to gender with females only having higher contributions at $20 and $70.
+From the frequency polygon, we get a clearer picture about the different 
+amounts contributed to either gender with females only having higher 
+contributions at $20 and $70.
 
 ### Contributions by Candidate
 
@@ -234,14 +246,16 @@ qplot(x = amount, data = subset(mdata, amount >= 0)) +
   facet_wrap(~cand_nm, scales ="free")
 ```
 
-As can be seen in the histograms, there is great variance in the distributions once transformed using log.
+As can be seen in the histograms, there is great variance in the distributions
+once transformed using log.
 
 ```{r echo=FALSE, warning=FALSE, Contributions_by_Candidate_summary}
 table(mdata$cand_nm)
 by(mdata$amount, mdata$cand_nm, summary)
 ```
 
-From the summaries, we can see that Bernie Sanders and Hilary Clinton have the frequency of contributions.
+From the summaries, we can see that Bernie Sanders and Hilary Clinton have the
+frequency of contributions.
 
 ```{r echo=FALSE, warning=FALSE, Contributions_by_Candidate_boxplot}
 # Boxplots
@@ -251,7 +265,8 @@ qplot(x = cand_nm, y = log10(amount),
   theme(axis.text.x=element_text(size=6), legend.position = "none")
 ```
 
-From the boxplots, we can see that Hilary Clinton has the greatest value of outliers and that the medians of all the candidates vary greatly.
+From the boxplots, we can see that Hilary Clinton has the greatest value of
+outliers and that the medians of all the candidates vary greatly.
 
 ### Contributions by Party
 
@@ -265,7 +280,8 @@ qplot(x = amount, data = subset(mdata, amount >= 0)) +
 
 ```
 
-From the histogram, we can determine that the plots all have similar shapes with a positive skew. 
+From the histogram, we can determine that the plots all have similar shapes
+with a positive skew. 
 
 ```{r echo=FALSE, warning=FALSE, Contributions_by_Party_freqplot}
 # Frequency Plot
@@ -279,7 +295,9 @@ qplot(x = amount, y = ..count..,
   scale_x_continuous(lim = c(0, 200), breaks = seq(0, 200, 20)) 
 ```
 
-From the Frequency polygon, we can see that the Democratic party has significantly more contributions than the Republicans (7.37 times more) and the Green party (1585 times more).
+From the Frequency polygon, we can see that the Democratic party has 
+significantly more contributions than the Republicans (7.37 times more) and th
+e Green party (1585 times more).
 
 ```{r echo=FALSE, warning=FALSE, Contributions_by_Party_summary}
 table(mdata$party)
@@ -291,7 +309,14 @@ qplot(x = party, y = log10(amount),
       geom = 'boxplot')
 ```
 
-From the summaries and boxplot, we can see that the Democrats have the lowest median and mean (27, 191 respectively) of the 3 parties. The next highest medians are the Republicans with a median of 50 although they have the highest mean of 241.5. The green party has a median of 104.0 and a mean of 201.8 although they received significantly less contributions.
+From the summaries and boxplot, we can see that the Democrats have the lowest
+median and mean (27, 191 respectively) of the 3 parties. 
+
+The next highest medians are the Republicans with a median of 50 although they
+have the highest mean of 241.5. 
+
+The green party has a median of 104.0 and a mean of 201.8 although they 
+received significantly less contributions.
 
 ### Contributions by Date
 
@@ -314,9 +339,14 @@ ggplot(data = subset(mdata, mdata$year > 14), aes(x = month)) +
 
 ```
 
-From the histogram and table, we can see that contributions started around April 2015 and increased consistently throughout the year. In 2016, the contributions count was much higher and peaked around April, this is likely due to the Primary Election finishing then.
+From the histogram and table, we can see that contributions started around 
+April 2015 and increased consistently throughout the year. 
 
-The lack of peaks after August 2016 is due to the data not being available (I downloaded the data in September).
+In 2016, the contributions count was much higher and peaked around April, 
+this is likely due to the Primary Election finishing then.
+
+The lack of peaks after August 2016 is due to the data not being available 
+(I downloaded the data in September).
 
 ## Univariate Analysis
 
@@ -339,17 +369,31 @@ The main features in the dataset are amount, candidate and party.
 Gender, occupation, zip and date will likely influence contributions.
 
 ### Did you create any new variables from existing variables in the dataset?
-I created variables to find the 
+I created variables for refunds/amount for party, candidates and gender which
+were used when plotting the data to see the difference between the 
+refund/contribution amount for each.
+
+I also created variables for the 4 most contributed candidates and their amounts
+each month so I could see how their contributions varied over time.
 
 ### Of the features you investigated, were there any unusual distributions? Did you perform any operations on the data to tidy, adjust, or change the form of the data? If so, why did you do this?
 
-I log transformed the amount of contribution for right skewed plots so it would be easier to see distributions. The distribution that I thought was most unusual was the contributions by party. I assumed that all parties would have a similar frequency of contributions however it turned out that the Democrats had almost 80% of contributions.
+I log transformed the amount of contribution for right skewed plots so it would
+be easier to see distributions. The distribution that I thought was most unusual
+was the contributions by party. I assumed that all parties would have a similar
+frequency of contributions however it turned out that the Democrats had almost
+80% of contributions.
 
-I adjusted column names to make them less verbose and removed rows that had data not related to the Primary or General 2016 elections or not within NY state. 
+I adjusted column names to make them less verbose and removed rows that had data
+not related to the Primary or General 2016 elections or not within NY state. 
 
-I inserted columns into the data to hold the longitude/latitude of zipcodes as well as gender and party of candidates. I did this so I could plot the contributions on a map over NY state and so that I could determine how the contributions were split between parties and gender of the candidates.
+I inserted columns into the data to hold the longitude/latitude of zipcodes as
+well as gender and party of candidates. I did this so I could plot the 
+contributions on a map over NY state and so that I could determine how the 
+contributions were split between parties and gender of the candidates.
 
-There was a particularly unusual distribution for the median amounts refunded for 6 candidates.
+There was a particularly unusual distribution for the median amounts refunded 
+for 6 candidates.
 
 ***
 
@@ -376,7 +420,8 @@ ggplot() +
             fontface="bold")
 ```
 
-From the plot, it is clear that larger donations come from heavily populated areas.
+From the plot, it is clear that larger donations come from heavily populated 
+areas.
 
 ### Contributions and Redesignate/Refunds by Party
 
@@ -448,15 +493,26 @@ merged_party[1:5]
 
 ```
 
-From the various barcharts and tables above, you can see that the Democratic party had the highest amount of contributions (approx $75MM) followed by the Republicans (approx $15MM) and finally the Green party had the least amount (< $1MM).
+From the various barcharts and tables above, you can see that the Democratic 
+party had the highest amount of contributions (approx $75MM) followed by the 
+Republicans (approx $15MM) and then Green party had the least (< $1MM).
 
-The means of the contribution however were quite different, with the Democrats having the highest mean ($278) followed by the Green party ($201) and finally the Democrats ($195). This is a little misleading however as the Green party only had 238 contributions and so anomalies were more able to skew the data.
+The means of the contribution however were quite different, with the Democrats
+having the highest mean ($278) followed by the Green party ($201) and finally 
+the Democrats ($195). This is a little misleading however as the Green party 
+only had 238 contributions and so anomalies were more able to skew the data.
 
-The medians of the contribution are a more robust metric and the Green party had the highest with $104, followed by the Republicans with $50 and finally the Democrats with $27.
+The medians of the contribution are a more robust metric and the Green party had
+the highest with $104, followed by the Republicans with $50 and finally the 
+Democrats with $27.
 
-As discussed earlier, the Democrats had almost 7.5 times as many contributions compared to the Republicans and over 1500 times more contributions than the Green party.
+As discussed earlier, the Democrats had almost 7.5 times as many contributions 
+compared to the Republicans and over 1500 times more contributions than the 
+Green party.
 
-This data shows that the total contribution amount was greatest for the Democrats, however the Republicans received more money per contribution. **Does this suggest richer people donate to the Republicans?**
+This data shows that the total contribution amount was greatest for the 
+Democrats, however the Republicans received more money per contribution. 
+**Does this suggest wealthier people donate to the Republicans?**
 
 #### Redesignate/Refunds
 
@@ -485,11 +541,15 @@ merged_party[c(1,6:9)]
 
 ```
 
-From the various barcharts and tables, you can see that the Republican party had the highest amount of refunds (approx $1.5MM) followed by the democrats (approx $1MM) and finally the Green party had none.
+From the various barcharts and tables, you can see that the Republican party
+had the highest amount of refunds (approx $1.5MM) followed by the democrats 
+(approx $1MM) and finally the Green party had none.
 
-The means of the refunds followed this with the Republicans having the highest mean ($1224) followed by the Democrats ($297).
+The means of the refunds followed this with the Republicans having the highest
+mean ($1224) followed by the Democrats ($297).
 
-The medians of the refunds for the Republicans were highest at $484 followed by the Democrats at $100.
+The medians of the refunds for the Republicans were highest at $484 followed by
+the Democrats at $100.
 
 #### Ratio of Redesignate/Refunds to Contributions
 
@@ -511,7 +571,9 @@ grid.arrange(p1,p2, ncol=1)
 merged_party[c(1,5,9,10:11)]
 ```
 
-From the barchart and table, we can see that the Ratio of contributions to refunds is greater for the Democrats than it is for the Republicans for both amount and frequency. 
+From the barchart and table, we can see that the Ratio of contributions to 
+refunds is greater for the Democrats than it is for the Republicans for both 
+amount and frequency. 
 
 ### Contributions and Redesignate/Refunds by Candidate
 
@@ -568,9 +630,14 @@ ggplot(merged_candidate, aes(cand_nm, c_amount_sum, fill = cand_nm)) +
   scale_y_continuous(breaks = seq(0, 70000000, 5000000))
 ```
 
-From the bar charts and tables of data, we can see that Hilary Clinton had the highest contributions amount (approx $65MM) followed by Bernie Sanders ($8MM), with Jeb Bush, Rubio Marco, Donald Trump and Ted Cruz raising between $3.5MM - $2MM. We can also see that most candidates raised less than $1MM in donations (13 out of 19).
+From the bar charts and tables of data, we can see that Hilary Clinton had the
+highest contributions amount (approx $65MM) followed by Bernie Sanders ($8MM), 
+with Jeb Bush, Rubio Marco, Donald Trump and Ted Cruz raising between 
+$3.5MM - $2MM. We can also see that most candidates raised less than $1MM in 
+donations (13 out of 19).
 
-Based on the large variance in the amounts raised by candidates, I decided to only focus on candidates who had raised more than $1MM. 
+Based on the large variance in the amounts raised by candidates, I decided to 
+only focus on candidates who had raised more than $1MM. 
 
 ```{r echo=FALSE, warning=FALSE, Candidate_Contributions_Means}
 p1 <- ggplot(subset(merged_candidate, merged_candidate$c_amount_sum > 1000000), aes(cand_nm, c_amount_mean, fill = cand_nm)) + 
@@ -595,13 +662,24 @@ subset(merged_candidate, merged_candidate$c_amount_sum > 1000000)[1:6]
 with(merged_candidate, cor.test(c_amount_sum, c_count, method = 'pearson'))
 ```
 
-From the plots, you can see that Jeb Bush had the highest mean ($1591) and median ($2700) contributions. He also received the lowest frequency of contributions with only 2142 contributions. This is somewhat unusual as he had the third highest total contribution amount. **Jeb Bush contributors send him a lot of money but only a few times, who are they? i.e. are they large companies, or very rich individuals? Is this linked to the Bush Family?**
+From the plots, you can see that Jeb Bush had the highest mean ($1591) and 
+median ($2700) contributions. He also received the lowest frequency of 
+contributions with only 2142 contributions. This is somewhat unusual as he 
+had the third highest total contribution amount. 
+**Jeb Bush contributors send him a lot of money but only a few times.**
+**Who are they (large companies, Bush family or very rich individuals)?**
 
-The next candidate with the highest mean ($668) and median ($100) by contribution is Marco Rubio. Again, he had a low frequency of contributions but had a relatively large contribution total. **Again, who are the contributors? i.e. are they large companies, or very rich individuals? Is this linked to a certain party?** 
+The next candidate with the highest mean ($668) and median ($100) by 
+contribution is Marco Rubio. Again, he had a low frequency of contributions 
+but had a relatively large contribution total. 
+**Again, who are the contributors (large companies, party or rich individuals?)** 
 
-The candidates with the lowest medians are Hilary Clinton and Bernie Sanders, although Hilary has the third highest mean. **Again, is this to do with their parties and the types of people that support them?**
+The candidates with the lowest medians are Hilary Clinton and Bernie Sanders, 
+although Hilary has the third highest mean. 
+**Again, is this to do with their parties and the types of people that support them?**
 
-There is a strong correlation between total amount contributed and number of contributors (0.81).
+There is a strong correlation between total amount contributed and number of 
+contributors (0.81).
 
 #### Redesignate/Refunds
 
@@ -618,7 +696,9 @@ subset(merged_candidate, !is.na(merged_candidate$r_count))[c(1,2,7:10)]
 
 ```
 
-From the barchart, we can see that Marco Rubio had the highest amount of refunds (approx $620K), followed by Hilary Clinton (approx $600K). They were followed by Bernie Sanders (approx $400K) and Ted Cruz (approx $375K). 
+From the barchart, we can see that Marco Rubio had the highest amount of refunds
+(approx $620K), followed by Hilary Clinton (approx $600K). They were followed by
+Bernie Sanders (approx $400K) and Ted Cruz (approx $375K). 
 
 You can also see that various candidates had no refunds.
 
@@ -648,17 +728,24 @@ with(merged_candidate, cor.test(r_amount_sum, r_count, method = 'pearson'))
 
 ```
 
-Looking at the mean bar chart, we can see that the highest mean is Scott Walker at $2961. He is followed by Lindsey Graham, Marco Rubio, John Kasich, Martin O'Malley and Jeb Bush who all had means above $1600.
+Looking at the mean bar chart, we can see that the highest mean is Scott Walker
+at $2961. He is followed by Lindsey Graham, Marco Rubio, John Kasich, 
+Martin O'Malley and Jeb Bush who all had means above $1600.
 
-The lowest mean refund was Hilary Clinton with $269 (excluding candidates with no refunds).
+The lowest mean refund was Hilary Clinton with $269 (excl cands with no refunds).
 
-Looking at the median plot above, there is a distrubution where 6 candidates (Scott Walker, Lindsey Graham, Marco Rubio, John Kasich, Martin O'Malley and Jeb Bush) all had a median refund amount of $2700. **Why is this?**
+Looking at the median plot above, there is a distrubution where 6 candidates 
+(Scott Walker, Lindsey Graham, Marco Rubio, John Kasich, Martin O'Malley and 
+Jeb Bush) all had a median refund amount of $2700. **Why is this?**
 
-The lowest median refunds were for Hilary Clinton and Ted Cruz at $50 (excluding candidates with no refunds).
+The lowest median refunds were for Hilary Clinton and Ted Cruz at $50 
+(excl cands with no refunds).
 
-There is a strong correlation between total amount refunded and number of refunds (0.75).
+There is a strong correlation between total amount refunded and 
+number of refunds (0.75).
 
-To try and answer the median of $2700 question, I decided to plot the amount and see if there were any similarities. 
+To try and answer the median of $2700 question, I decided to plot the amount
+and see if there were any similarities. 
 
 ```{r echo=FALSE, warning=FALSE}
 interesting_candidates <- subset(mdata, 
@@ -681,9 +768,12 @@ remove(int_cand_2700)
 
 As can be seen from the graphs, they all had peaks at $2700.
 
-I decided to look at the jobs contributors had and found that most were in positions of management such as CEOs/COOs/CIO, Chairman, MDs, Executures, Investors, Managing Partner, Directors etc.
+I decided to look at the jobs contributors had and found that most were in 
+positions of management such as CEOs/COOs/CIO, Chairman, MDs, Executures, 
+Investors, Managing Partner, Directors etc.
 
-I also found that a lot had their money redesignated to the general as opposed to refunded.
+I also found that a lot had their money redesignated to the general election
+as opposed to refunded.
 
 #### Ratio of Redesignate/Refunds to Contributions
 
@@ -712,9 +802,16 @@ grid.arrange(p1,p2, ncol=1)
 subset(merged_candidate, merged_candidate$c_amount_sum > 1000000)[c(1,6,10,11:12)]
 ```
 
-From the Total Contributions barchart, we can see that the ratio is greatest for Hilary Clinton at 107 followed by Donald Trump at 44 with Jeb Bush and Bernie Sanders coming in with 21 and 22 respectively. Interestingly, both Ted Cruz and Marco Rubio had ratios less than 10, which implies that a large amount of the contributions were refunded/redesignated. **Was this to do with them losing their election types? i.e. to do with timeframes**.
+From the Total Contributions barchart, we can see that the ratio is greatest
+for Hilary Clinton at 107 followed by Donald Trump at 44 with Jeb Bush and 
+Bernie Sanders coming in with 21 and 22 respectively. Interestingly, both 
+Ted Cruz and Marco Rubio had ratios less than 10, which implies that a 
+large amount of the contributions were refunded/redesignated. 
+**Was this to do with them losing their election types? (April 2016)**.
 
-From the Number of Contributions barchart, we can see that Donald Trump has the highest ratio at 198. He is followed by Bernie Sanders at 149 and then Hilary Clinton at 90.
+From the Number of Contributions barchart, we can see that Donald Trump has
+the highest ratio at 198. He is followed by Bernie Sanders at 149 and then 
+Hilary Clinton at 90.
 
 ### Contributions and Redesignate/Refunds by Gender
 
@@ -785,13 +882,17 @@ merged_gender[1:5]
 
 ```
 
-From the charts, we can see that female candidates have almost 3 times higher total contributions than male candidates with ~$65MM to ~$23MM. 
+From the charts, we can see that female candidates have almost 3 times higher
+total contributions than male candidates with ~$65MM to ~$23MM. 
 
-The mean contributions are again 3 times larger for females than for males at $320 to $101.
+The mean contributions are again 3 times larger for females than for males at 
+$320 to $101.
 
 The median contributions are larger for females at $38 to males $27.
 
-These results are especially suprising due to females only making up 2 of the 19 candidates. **Is it one particular candidate who is getting all the contributions for females? We know Hilary has the most contributions of any candidate by far.** 
+These results are especially suprising due to females only making up 2 of the
+19 candidates. 
+**Is one candidate (Clinton) getting all the contributions for females?** 
 
 #### Redesignate/Refunds
 
@@ -820,9 +921,12 @@ grid.arrange(p1,p2,p3, ncol=1)
 merged_gender[c(1,6:9)]
 ```
 
-The plots show that males are getting more refunds by total amount, mean and median. 
+The plots show that males are getting more refunds by total amount,
+mean and median. 
 
-As males and females have a similar frequency of contributions, this would suggest that large contributors are taking back large portions of money compared to female candidates contributors. **Can we prove this?**
+As males and females have a similar frequency of contributions, this
+would suggest that large contributors are taking back large portions
+of money compared to female candidates contributors. **Can we prove this?**
 
 #### Ratio of Redesignate/Refunds to Contributions
 
@@ -846,9 +950,13 @@ grid.arrange(p1,p2, ncol=1)
 merged_gender[c(1,5,9:11)]
 ```
 
-From the Total Contribution Ratio Barchart, it is clear that females had a much higher ratio of contribution amount to refund amount than males (107 to 11). 
+From the Total Contribution Ratio Barchart, it is clear that females had a much
+higher ratio of contribution amount to refund amount than males (107 to 11). 
 
-From the Number of Contributions Barchart, we can see that they both had almost the same ratio of refunds to contributions as each other (90 to 92) however only <1% of total contributions were refunded for females compared ~10% for males. **Are larger donors getting refunds for males compared to females?**
+From the Number of Contributions Barchart, we can see that they both had almost 
+the same ratio of refunds to contributions as each other (90 to 92) however only
+<1% of total contributions were refunded for females compared ~10% for males. 
+**Are larger donors getting refunds for males compared to females?**
 
 ```{r}
 qplot(x = abs(amount), data = subset(mdata, amount < 0)) +
@@ -860,7 +968,12 @@ qplot(x = abs(amount), data = subset(mdata, amount < 0)) +
   ggtitle("2016 US Election Ratio Refunds by Gender") 
 ```
 
-To check whether larger donors were getting refunds, I did another plot of the actual refunds and found that for females, there were many more refunds at lower values i.e. less than $500 whereas for males, there was almost as many refunds at $200 as there were at $2800. This further validates the theory that larger donors were Redesignate/Refunding money from male candidates whereas smaller donors were Redesignate/Refunding money from females.
+To check whether larger donors were getting refunds, I did another plot of the 
+actual refunds and found that for females, there were many more refunds at lower
+values i.e. less than $500 whereas for males, there was almost as many refunds 
+at $200 as there were at $2800. This further validates the theory that larger 
+donors were Redesignate/Refunding money from male candidates whereas smaller 
+donors were Redesignate/Refunding money from females.
 
 ## Bivariate Analysis
 
@@ -868,47 +981,77 @@ To check whether larger donors were getting refunds, I did another plot of the a
 
 #### Relationship between Party and Amount
 
-We can see that party contributions were in part influenced by where the donator was living such as large cities contributed to Republicans whereas smaller cities/towns contributed to Democrats. The amount in general was also influence by the party as the Democrats had a larger total of contributions compared to the other parties and had a higher frequency of contributions too. However the Republicans received more money per contribution.
+We can see that party contributions were in part influenced by where the donator
+was living such as large cities contributed to Republicans whereas smaller 
+cities/towns contributed to Democrats. The amount in general was also influenced 
+by the party as the Democrats had a larger total of contributions compared to the
+other parties and had a higher frequency of contributions too. 
+However the Republicans received more money per contribution.
 
-The ratio of Contributions to Refunds/Redesignations is greater for the Democrats than it is for Republicans which shows they had less refunds/redesignations per contribution.
+The ratio of Contributions to Refunds/Redesignations is greater for the 
+Democrats than it is for Republicans which shows they had less 
+refunds/redesignations per contribution.
 
 #### Relationship between Candidate and Amount
 
-There was a clear relationship between candidates and their contribution amount which is as expected. Hilary Clinton had the highest contribution amount followed by Bernie Sanders. Most candidates did not raise more than $1M. Something of interest was that candidates had varying number of contributors but similar amounts of contribution, which may have something to do with their supporters incomes and their partys'.
+There was a clear relationship between candidates and their contribution amount
+which is as expected. Hilary Clinton had the highest contribution amount 
+followed by Bernie Sanders. Most candidates did not raise more than $1M. 
+Something of interest was that candidates had varying number of contributors but
+similar amounts of contribution, which may have something to do with their 
+supporters incomes and their partys'.
 
-For refunds/redesignations, there was a weird plot where 6 candidates had the same median refund amount. I looked further into this and found that these refunds/redesignations were from people who were in positions of management such as CEOs/COOs/CIO, Chairman, MDs, Executures, Investors, Managing Partner, Directors etc.
+For refunds/redesignations, there was a weird plot where 6 candidates had the 
+same median refund amount. I looked further into this and found that these 
+refunds/redesignations were from people who were in positions of management 
+such as CEOs/COOs/CIO, Chairman, MDs, Executures, Investors, 
+Managing Partner, Directors etc.
 
-The ratio of Contributions to Refunds/Redesignations was greatest for Hilary Clinton. Candidates Ted Cruz and Marco Rubio both had ratios < 10 which implies a large amount of their contributions were refunded. I will look into this further to see if this was caused by them losing their election type.
+The ratio of Contributions to Refunds/Redesignations was greatest for 
+Hilary Clinton. Candidates Ted Cruz and Marco Rubio both had ratios < 10 which
+implies a large amount of their contributions were refunded. I will look into 
+this further to see if this was caused by them losing their election type.
 
-There was a strong correlation between the total amount contributed/refunded and the number of contributors/refundees.
+There was a strong correlation between the total amount contributed/refunded 
+and the number of contributors/refundees.
 
 ### Did you observe any interesting relationships between the other features (not the main feature(s) of interest)?
 
 #### Relationship between Zip and Amount
 
-The relationship between zip and amount was not strong other than the largest donations come from large cities.
+The relationship between zip and amount was not strong other than the largest 
+donations come from large cities.
 
 #### Relationship between Gender and Amount
 
-Female candidates had almost 3 times higher total contributions, 3 times more mean contributions and larger median contributions than males. This was a little suprising as females made up only 2 of the 19 candidates.
+Female candidates had almost 3 times higher total contributions, 3 times more mean
+contributions and larger median contributions than males. This was a little 
+suprising as females made up only 2 of the 19 candidates.
 
 Male candidates had more redisgnations/refunds by amount, mean and median. 
 
-It was clear that females had a much higher ratio of contribution amount to refund amount than males yet had almost the same ratio of refunds to contributions, however only <1% of total contributions were refunded for females compared ~10% for males. 
+It was clear that females had a much higher ratio of contribution amount to refund
+amount than males yet had almost the same ratio of refunds to contributions, 
+however only <1% of total contributions were refunded for females 
+compared ~10% for males. 
 
-This led me to believe that large contributors were taking back larger portions of their money for males compared to females. I did a plot of the actual refunds and found that for females, there were many more refunds at lower values. This further validates the theory that larger donors were Redesignate/Refunding money from male candidates whereas smaller donors were Redesignate/Refunding money from females.
+This led me to believe that large contributors were taking back larger portions of
+their money for males compared to females. I did a plot of the actual refunds and
+found that for females, there were many more refunds at lower values. This further
+validates the theory that larger donors were Redesignate/Refunding money from male
+candidates whereas smaller donors were Redesignate/Refunding money from females.
 
 ### What was the strongest relationship you found?
 
-The strongest relationship I found was between candidate and amount as a single candidate (Hilary Clinton) had the vast majority of contributions by both amount and frequency.
+The strongest relationship I found was between candidate and amount as a single 
+candidate (Hilary Clinton) had the vast majority of contributions by both 
+amount and frequency.
 
 ***
 
 ## Multivariate Plots Section
 
 ### Contributions by Party and Zip
-
-From the silouhetter below, it seems that contributions from larger cities were more likely to contribute to the Democrats whereas areas out of the big cities were more likely to contribute to the Republicans.
 
 ```{r echo=FALSE, warning=FALSE}
 # Drawing silouhette of NY with contributor data points
@@ -930,11 +1073,11 @@ ggplot() +
             fontface="bold")
 ```
 
+From the silouhetter above, it seems that larger cities were more likely to 
+contribute to the Democrats whereas areas out of the big cities were more 
+likely to contribute to the Republicans.
+
 ### Contributions by Party and Candidate
-
-For the Republicans, you can see there's a great difference between the number of contributions and the total contribution amount. The 2 republicans with the most contributions did not have the highest total amount.
-
-For the democrats, the candidates with the highest number of contributions also had the highest contribution amount, however, Hilary had ~10% greater contributions than Bernie but almost %400 greater contribution amount.
 
 ```{r echo=FALSE, warning=FALSE, Cntbtn_By_P_and_C}
 p1 <- ggplot(subset(merged_candidate, merged_candidate$party == "R"), aes(cand_nm, c_count, fill = cand_nm)) + 
@@ -974,13 +1117,18 @@ p4 <- ggplot(subset(merged_candidate, merged_candidate$party == "D"), aes(cand_n
 grid.arrange(p1,p2, p3,p4, ncol=2)
 ```
 
+For the Republicans, you can see there's a great difference between the number
+of contributions and the total contribution amount. The 2 republicans with the
+most contributions did not have the highest total amount.
+
+For the democrats, the candidates with the highest number of contributions also
+had the highest contribution amount, however, Hilary had ~10% greater 
+contributions than Bernie but almost %400 greater contribution amount.
+
 #### Top 4 Candidates by Number of Contributions
 
-I wanted to see how the contributions varied over time for the top 4 most contributed candidates.
-
-From the initial bar plot, we can see that most contributions came within a 12 month period from August 2015 to August 2016. We can also see that Democrats were getting much more contributions throughout.
-
-From the 12 month period, we can see that Bernie Sanders was getting the most contributions followed by Hilary Clinton however, after month 5 2016 (primary election ended), it can be seen that Hilary Clinton overwhelmingly got more contributions. The same can be seen for the Republicans with Ted Cruz getting more contributions until the primary's ended (when he lost) after which Donald Trump got more contributions.
+I wanted to see how the contributions varied over time for the top 4 most 
+contributed candidates.
 
 ```{r echo=FALSE, warning=FALSE, Top_4_Candidates}
 ### Idea is to create a line plot following the average number of contributions per month, or average number of contributions per week, per candidate and seeing how they vary against each other. This will be the final plot.
@@ -1005,11 +1153,16 @@ ggplot(data = top_cont,
   facet_wrap(~year) 
 ```
 
-By looking at the data over the 20 month period, some interesting things emerge. 
+From the initial bar plot, we can see that most contributions came within a 12
+month period from August 2015 to August 2016. We can also see that Democrats 
+were getting much more contributions throughout.
 
-The first is that for a large part of the election, Bernie Sanders was getting more contributions than Hilary Clinton, yet she was still receiving more money which is in line with our earlier findings. Another interesting find is that both Primary winners had less number of contributions yet still won. This is not to say they had less total money however (Hilary had higher contribution amounts, Trump was self funding).
-
-The second interesting thing is that most refund/redesignations seem to happen after month 17 when the median and mean contribution amounts go negative. This answers our earlier question about why Ted Cruz had such a high ratio of refunds/redesignations to contributions, they were refunded after the primary elections.
+From the 12 month period, we can see that Bernie Sanders was getting the most 
+contributions followed by Hilary Clinton however, after month 5 2016 
+(primary election ended), it can be seen that Hilary Clinton overwhelmingly 
+got more contributions. The same can be seen for the Republicans with Ted Cruz
+getting more contributions until the primary's ended (when he lost) after which
+Donald Trump got more contributions.
 
 ```{r echo=FALSE, warning=FALSE, Top_4_Candidates_Monthly}
 # Standardize months from 2015 - 2016. Months in 2016 + 12.
@@ -1064,6 +1217,20 @@ p4 <- ggplot(data = tc.amount_by_month,
 grid.arrange(p3,p4, ncol = 1)
 ```
 
+By looking at the data over the 20 month period, some interesting things emerge. 
+
+The first is that for a large part of the election, Bernie Sanders was getting
+more contributions than Hilary Clinton, yet she was still receiving more money
+which is in line with our earlier findings. Another interesting find is that 
+both Primary winners had less number of contributions yet still won. However, 
+this is not to say they had less total money (Hilary had higher contribution 
+amounts, Trump was self funding).
+
+The second interesting thing is that most refund/redesignations seem to happen 
+after month 17 when the median and mean contribution amounts go negative. This 
+answers our earlier question about why Ted Cruz had such a high ratio of 
+refunds/redesignations to contributions - they were refunded after the 
+primary elections.
 
 ## Multivariate Analysis
 
