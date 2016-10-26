@@ -376,6 +376,9 @@ refund/contribution amount for each.
 I also created variables for the 4 most contributed candidates and their amounts
 each month so I could see how their contributions varied over time.
 
+I also merged some datasets together to plot maps of the zip codes and to find 
+genders/parties of the candidates.
+
 ### Of the features you investigated, were there any unusual distributions? Did you perform any operations on the data to tidy, adjust, or change the form of the data? If so, why did you do this?
 
 I log transformed the amount of contribution for right skewed plots so it would
@@ -1236,7 +1239,48 @@ primary elections.
 
 ### Talk about some of the relationships you observed in this part of the investigation. Were there features that strengthened each other in terms of looking at your feature(s) of interest?
 
+#### Relationship between Party, Contributions and Zip
+
+There is a relationship between the party receiving a contribution and the zip
+code that contributed to it. Areas out of big cities seemed to contribute more
+to Republicans whereas areas in big cities seemed to contribute more to 
+Democrats.
+
+#### Relationship between Contributions, Party and Candidates
+
+For Republican candidates, there's a great difference between the number
+of contributions and the total contribution amount. The 2 republicans with the
+most contributions did not have the highest total amount.
+
+For the democrats, the candidates with the highest number of contributions also
+had the highest contribution amount, however Hilary had ~10% greater 
+contributions than Bernie but almost %400 greater contribution amount.
+
+#### Relationship between Candidates and Contributions Over Time
+
+Most contributions came within a 12 month period from August 2015 to August 2016.
+
+In the 12 month period, the candidates leading with contributions from their 
+parties (Bernie Sanders and Ted Cruz) ended up losing their primaries. After
+losing, their opposing candidates (Hilary Clinton and Donald Trump) got more
+contributions.
+
+There is a strong relationship between contributions/refunds over time as 
+after month 17, we see median and mean refunds go negative for Ted Cruz
+and Bernie Sanders due to them losing their primaries and issuing refunds.
+This answers our earlier question about why Ted Cruz had a high ratio of 
+refunds/redesignations to contributions - they were refunded after he 
+lost his election.
+
 ### Were there any interesting or surprising interactions between features?
+
+#### Relationship between Candidates and Time
+
+In the 12 month period, the candidates leading with number of contributions 
+from their parties (Bernie Sanders and Ted Cruz) ended up losing their 
+primary elections. This seemed counter intuitive until looking at the
+actual contribution amounts where it became obvious that they were not 
+getting a higher amount, just a higher frequency of contributions. 
 
 ***
 
@@ -1268,5 +1312,5 @@ primary elections.
 ***
 
 # Reflection
-I wanted to answer the question of whether if you come from a certain town, are you more likely to receive votes from that town.
+
 
