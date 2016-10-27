@@ -729,10 +729,11 @@ p2 <- ggplot(merged_candidate, aes(cand_nm, r_amount_median, fill = cand_nm)) +
   xlab("Candidate") +
   ylab("Median Contribution") +
   ggtitle("2016 US Election Median Refund by Candidate") +
-  theme(axis.text.x=element_blank()) +
-  scale_y_continuous(breaks = seq(0, 2800, 200))
+  theme(axis.text.x=element_blank(),
+        legend.position = "bottom") +
+  scale_y_continuous(breaks = seq(0, 2800, 300))
 
-grid.arrange(p1,p2, ncol = 2)
+grid.arrange(p1,p2, ncol = 1)
 
 subset(merged_candidate, !is.na(merged_candidate$r_count))[c(1,2,7:10)]
 
@@ -1164,8 +1165,7 @@ ggplot(data = top_cont,
        aes(x = month)) + 
   geom_histogram(binwidth = 1, aes(fill = cand_nm, color = party)) + 
   scale_x_continuous(breaks = 1:12)  +
-  facet_wrap(~year) +
-  geom_smooth()
+  facet_wrap(~year) 
 ```
 
 From the plot, we can see that most contributions came within a 12
@@ -1297,36 +1297,115 @@ getting a higher amount, just a higher frequency of contributions.
 
 # Final Plots and Summary
 
-Enable the reader to digest large amounts of information i.e. plot of the map with all the contributions 
-
 ### Plot One
 ```{r echo=FALSE, Plot_One}
-
+qplot(x = amount, y = ..count..,
+      data = subset(mdata,  amount > 0), 
+      xlab = 'Amount Contributed',
+      ylab = 'Frequency',
+      binwidth = 10, 
+      geom = 'freqpoly', 
+      color = party) + 
+  scale_x_continuous(lim = c(0, 200), breaks = seq(0, 200, 20)) 
 ```
 
-### Description One
+#### Description One
 
+This plot was very interesting to me because I had assumed that all parties
+would raise a similar amount of money even if their frequencies would be 
+different at different amounts. 
+
+What I found was the Democratic party overwhelmingly raised more money at all 
+stages. This really spurred me on to find why this happened which led to me 
+investigating candidates, gender, zipcode and time to see if these 
+could explain it. 
 
 ### Plot Two
 ```{r echo=FALSE, Plot_Two}
-
+ggplot() +
+  geom_polygon(data = newyork,
+               aes(x = long, y = lat, group = group)) +
+  geom_jitter(aes(x = longitude, y = latitude, group = NULL, color = party), 
+             data = subset(mdata, 
+                     !is.na(mdata$zip)),
+             alpha = 1/50) +
+  geom_point(data = subset(us.cities,
+                           us.cities$country == "NY" & us.cities$pop > 100000),
+             aes(x = long, y = lat, size = pop),
+             colour = "green") +
+  geom_text(data = subset(us.cities,
+                          us.cities$country == "NY" & us.cities$pop > 100000),
+            aes(x = long, y = lat, label = name),
+            colour = "gold",
+            fontface="bold")
 ```
 
-### Description Two
+#### Description Two
 
+I include this plot because it shows the contributions in NY state by party.
+This plot helped me understand where the rival parties were getting their
+contributions from and who was supporting them.
 
 ### Plot Three
 
-Clarify a gap between perception and reality i.e. the plot with Hilary and Trump getting less contributors but more money and winning their elections.
-
 ```{r echo=FALSE, Plot_Three}
+p1 <- ggplot(data = tc.amount_by_month,
+       aes(x = s_m, y = n)) + 
+  geom_line(aes(color = cand_nm)) + 
+  scale_x_continuous(breaks = 1:21) +
+  xlab("Month") +
+  ylab("Number of Contributions") +
+  ggtitle("Monthly Number of Contributions") 
 
+p2 <- ggplot(data = tc.amount_by_month,
+       aes(x = s_m, y = amount_sum)) + 
+  geom_line(aes(color = cand_nm)) + 
+  scale_x_continuous(breaks = 1:21) +
+  xlab("Month") +
+  ylab("Contribution Amount") +
+  ggtitle("Monthly Total Contribution Amount") 
+
+grid.arrange(p1,p2, ncol = 1)
 ```
 
-### Description Three
+#### Description Three
+
+This plot is important because it highlights the fact that for both the 
+Democrats and Republicans, the candidate who was getting a higher frequency
+of contributions (Bernie Sanders and Ted Cruz) still went on to lose their 
+election type. 
 
 ***
 
 # Reflection
 
+The NY Contributions data set contained information on almost 430000 
+contributions with 19 features. I started by understanding the individual
+variables, I decided which features were useful, which features were not in the
+dataset and I therefore needed to fetch and which features should be removed. 
+I merged the contribution dataset with a zipcode dataset aswell as a gender and
+party dataset to get all the info I needed. Once this was done, I was able to 
+explore the most pertinent questions and I made observations on plots. 
+Eventually, I explored many variables involved in contributions and got a deep
+understanding of how contributions change over an Election.
+
+This election clearly had a front runner in terms of contribution size and
+frequency in Hilary Clinton and this quite often skewed the data. For example,
+when looking at gender or party, Hilary often accounted for the vast majority
+of the contributions and this made it somewhat difficult to glean further info.
+I found this was mitigated when looking at contributions over time, as during
+the campaign, you can see where rival candidates were getting more contributions
+than her and how this changed.
+
+There was one particular plot I struggled to understand, where the medians of 6
+candidates refunds/redesignations were all $2800. I was able to find out that
+most of these refunds/redesignations were from people in managerial positions
+however I would have enjoyed exploring this deeper.
+
+The only limitation with the dataset was that it was not complete at the time
+of me doing this analysis (data was from August 2016, analysis finished in 
+October 2016). 
+
+The analyses could be enriched by using more features such as scraping twitter
+and news data to see whether contributions varied on headline stories.
 
