@@ -439,18 +439,25 @@ for 6 candidates.
 ### Contributions by Zip
 
 ```{r echo=FALSE, warning=FALSE, message=FALSE, error=FALSE,}
+mdata.by_zip <- mdata %>%
+  group_by(zip, longitude, latitude) %>%
+  summarise(amount_sum = sum(amount),
+            amount_mean = mean(amount),
+            amount_median = median(amount),
+            n = n()) %>%
+  arrange(zip)
+
 # Drawing silouhette of NY with contributor data points
 ggplot() +
   geom_polygon(data = newyork,
                aes(x = long,
                    y = lat,
                    group = group)) +
-  geom_jitter(data = subset(mdata, 
-                     !is.na(mdata$zip)),
+  geom_jitter(data = mdata.by_zip,
               aes(x = longitude,
                   y = latitude,
                   group = NULL,
-                  color = amount)) +
+                  color = amount_sum)) +
   geom_point(data = subset(us.cities,
                            us.cities$country == "NY" & us.cities$pop > 100000),
              aes(x = long,
@@ -463,7 +470,8 @@ ggplot() +
                 y = lat,
                 label = name),
             colour = "gold",
-            fontface="bold")
+            fontface="bold") +
+  scale_fill_gradientn(colours = colorRampPalette(c("blue", "red"))(100))
 ```
 
 As can be seen, most donations were of the same size and didn't vary much by
