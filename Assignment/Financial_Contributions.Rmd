@@ -297,10 +297,18 @@ We are now exploring contribution amounts by Party.
 
 ```{r echo=FALSE, warning=FALSE, message=FALSE, error=FALSE, Contributions_by_Party}
 # Histogram wrapped by party
-qplot(x = amount, data = subset(mdata, amount >= 0)) +
+d <- qplot(x = amount, data = subset(mdata, amount >= 0 & party == "D")) +
   scale_x_continuous(limits = c(0, 200), breaks = seq(0,200,20)) +
-  facet_wrap(~party, scales = 'free')
+  ggtitle("Democratic Party Contribution Distribution")
+r <- qplot(x = amount, data = subset(mdata, amount >= 0 & party == "R")) +
+  scale_x_continuous(limits = c(0, 200), breaks = seq(0,200,20)) +
+  ggtitle("Republican Party Contribution Distribution")
+g <- qplot(x = amount, data = subset(mdata, amount >= 0 & party == "G")) +
+  scale_x_continuous(limits = c(0, 200), breaks = seq(0,200,20)) +
+  ggtitle("Green Party Contribution Distribution")
 
+grid.arrange(d,r,g, ncol = 1)
+remove(d,r,g)
 ```
 
 The distribution for each party are similar with all having a positive skew. 
@@ -315,14 +323,18 @@ qplot(x = amount, y = ..count..,
       geom = 'freqpoly', 
       color = party) + 
   scale_x_continuous(lim = c(0, 200), breaks = seq(0, 200, 20)) 
+
+table(mdata$party)
 ```
 
 The Frequency polygon shows that the Democratic party has significantly more
-contributions than the Republicans (7.37 times more) and the
-Green party (1585 times more).
+contributions than the Republican and Green Party at all contribution amounts.
+
+The tabled data shows that the Democrats had 377258 contributions compared to
+the Republicans 51150 contributions (7.37 times more) and the
+Green party's 238 (1585 times more).
 
 ```{r echo=FALSE, warning=FALSE, message=FALSE, error=FALSE, Contributions_by_Party_summary}
-table(mdata$party)
 by(mdata$amount, mdata$party, summary)
 
 # Boxplots
