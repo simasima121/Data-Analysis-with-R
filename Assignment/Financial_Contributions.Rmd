@@ -285,7 +285,7 @@ or means. We will look into this further with a boxplot.
 qplot(x = cand_nm, y = log10(amount),
       data = subset(mdata, amount > 0),
       geom = 'boxplot') +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
 From the boxplots, we can see that Hilary Clinton has the greatest value of
@@ -551,7 +551,7 @@ From the various barcharts and tables above, you can see that the Democratic
 party had the highest amount of contributions (approx $75MM) followed by the 
 Republicans (approx $15MM) and then Green party had the least (< $1MM).
 
-The means of the contribution however were quite different, with the Democrats
+The means of the contribution however were quite different, with the Republicans
 having the highest mean ($278) followed by the Green party ($201) and finally 
 the Democrats ($195). This is a little misleading however as the Green party 
 only had 238 contributions and so anomalies were more able to skew the data.
@@ -675,12 +675,12 @@ remove(mdata.by_candidate, mdata.by_candidate_refunds)
 #### Contributions
 
 ```{r echo=FALSE, warning=FALSE, message=FALSE, error=FALSE, Candidate_Contributions}
-ggplot(merged_candidate, aes(cand_nm, c_amount_sum, fill = cand_nm)) + 
+ggplot(merged_candidate, aes(cand_nm, c_amount_sum, fill = party)) + 
   geom_bar(stat="identity") +
   xlab("Candidate") +
   ylab("Total Contributions") +
   ggtitle("2016 US Election Total Contributions by Candidate") +
-  theme(axis.text.x=element_blank()) +
+  theme(axis.text.x=element_text(angle=45, hjust=1)) +
   scale_y_continuous(breaks = seq(0, 70000000, 5000000))
 ```
 
@@ -694,28 +694,25 @@ Based on the large variance in the amounts raised by candidates, I decided to
 only focus on candidates who had raised more than $1MM. 
 
 ```{r echo=FALSE, warning=FALSE, message=FALSE, error=FALSE, Candidate_Contributions_Means}
-p1 <- ggplot(subset(merged_candidate, merged_candidate$c_amount_sum > 1000000), aes(cand_nm, c_amount_mean, fill = cand_nm)) + 
+p1 <- ggplot(subset(merged_candidate, merged_candidate$c_amount_sum > 1000000), aes(cand_nm, c_amount_mean, fill = party)) + 
   geom_bar(stat="identity") +
   xlab("Candidate") +
   ylab("Mean Contribution") + 
   ggtitle("2016 US Election Mean Contribution by Candidate") +
-  theme(axis.text.x=element_blank()) +
+  theme(axis.text.x=element_text(angle=45, hjust=1)) +
   scale_y_continuous(breaks = seq(0, 1600, 200)) 
 
-p2 <- ggplot(subset(merged_candidate, merged_candidate$c_amount_sum > 1000000), aes(cand_nm, c_amount_median, fill = cand_nm)) + 
+p2 <- ggplot(subset(merged_candidate, merged_candidate$c_amount_sum > 1000000), aes(cand_nm, c_amount_median, fill = party)) + 
   geom_bar(stat="identity") +
   xlab("Candidate") +
   ylab("Median Contribution") +
   ggtitle("2016 US Election Median Contribution by Candidate") +
-  theme(axis.text.x=element_blank()) +
+  theme(axis.text.x=element_text(angle=45, hjust=1)) +
   scale_y_continuous(breaks = seq(0, 2800, 300)) 
 
 grid.arrange(p1,p2, ncol = 1)
 
 subset(merged_candidate, merged_candidate$c_amount_sum > 1000000)[1:6]
-
-# Testing the correlation
-with(merged_candidate, cor.test(c_amount_sum, c_count, method = 'pearson'))
 ```
 
 From the plots, you can see that Jeb Bush had the highest mean ($1591) and 
@@ -734,22 +731,26 @@ The candidates with the lowest medians are Hilary Clinton and Bernie Sanders,
 although Hilary has the third highest mean. 
 **Again, is this to do with their parties and the types of people that support them?**
 
+```{r echo=FALSE, warning=FALSE, message=FALSE, error=FALSE, Candidate_Contributions_Correlation}
+# Testing the correlation
+with(merged_candidate, cor.test(c_amount_sum, c_count, method = 'pearson'))
+```
+
 There is a strong correlation between total amount contributed and number of 
 contributors (0.81).
 
 #### Redesignate/Refunds
 
 ```{r echo=FALSE, warning=FALSE, message=FALSE, error=FALSE}
-ggplot(merged_candidate, aes(cand_nm, r_amount_sum, fill = cand_nm)) + 
+ggplot(merged_candidate, aes(cand_nm, r_amount_sum, fill = party)) + 
   geom_bar(stat="identity") +
   xlab("Candidate") +
   ylab("Total Contributions") +
   ggtitle("2016 US Election Total Refunds by Candidate") +
-  theme(axis.text.x=element_blank()) +
+  theme(axis.text.x=element_text(angle=45, hjust=1)) +
   scale_y_continuous(breaks = seq(0, 650000, 50000))
 
 subset(merged_candidate, !is.na(merged_candidate$r_count))[c(1,2,7:10)]
-
 ```
 
 From the barchart, we can see that Marco Rubio had the highest amount of refunds
@@ -759,30 +760,25 @@ Bernie Sanders (approx $400K) and Ted Cruz (approx $375K).
 You can also see that various candidates had no refunds.
 
 ```{r echo=FALSE, warning=FALSE, message=FALSE, error=FALSE, Candidate_Refunds}
-p1 <- ggplot(merged_candidate, aes(cand_nm, r_amount_mean, fill = cand_nm)) + 
+p1 <- ggplot(merged_candidate, aes(cand_nm, r_amount_mean, fill = party)) + 
   geom_bar(stat="identity") +
   xlab("Candidate") +
   ylab("Mean Contribution") + 
   ggtitle("2016 US Election Mean Refund by Candidate") +
-  theme(axis.text.x=element_blank(),  legend.position = "none") +
+  theme(axis.text.x=element_text(angle=45, hjust=1)) +
   scale_y_continuous(breaks = seq(0, 3000, 200))
 
-p2 <- ggplot(merged_candidate, aes(cand_nm, r_amount_median, fill = cand_nm)) + 
+p2 <- ggplot(merged_candidate, aes(cand_nm, r_amount_median, fill = party)) + 
   geom_bar(stat="identity") +
   xlab("Candidate") +
   ylab("Median Contribution") +
   ggtitle("2016 US Election Median Refund by Candidate") +
-  theme(axis.text.x=element_blank(),
-        legend.position = "bottom") +
+  theme(axis.text.x=element_text(angle=45, hjust=1)) +
   scale_y_continuous(breaks = seq(0, 2800, 300))
 
 grid.arrange(p1,p2, ncol = 1)
 
 subset(merged_candidate, !is.na(merged_candidate$r_count))[c(1,2,7:10)]
-
-# Testing the correlation
-with(merged_candidate, cor.test(r_amount_sum, r_count, method = 'pearson'))
-
 ```
 
 Looking at the mean bar chart, we can see that the highest mean is Scott Walker
@@ -798,13 +794,18 @@ Jeb Bush) all had a median refund amount of $2700. **Why is this?**
 The lowest median refunds were for Hilary Clinton and Ted Cruz at $50 
 (excl cands with no refunds).
 
+```{r echo=FALSE, warning=FALSE, message=FALSE, error=FALSE, Candidate_Refunds_correlation}
+# Testing the correlation
+with(merged_candidate, cor.test(r_amount_sum, r_count, method = 'pearson'))
+```
+
 There is a strong correlation between total amount refunded and 
 number of refunds (0.75).
 
 To try and answer the median of $2700 question, I decided to plot the amount
 and see if there were any similarities. 
 
-```{r echo=FALSE, warning=FALSE}
+```{r echo=FALSE, warning=FALSE, message=FALSE, error=FALSE}
 interesting_candidates <- subset(mdata, 
                                  mdata$cand_nm == "Bush, Jeb" |
                                  mdata$cand_nm == "Graham, Lindsey O." |
@@ -838,20 +839,20 @@ As we we're focused on candidates with more than $1MM in contributions,
 I removed all candidates with less than that for this exploration.
 
 ```{r echo=FALSE,warning=FALSE, message=FALSE, error=FALSE, Cand_Ratio}
-p1 <- ggplot(subset(merged_candidate, merged_candidate$c_amount_sum > 1000000), aes(cand_nm, total_ratio, fill = cand_nm)) + 
+p1 <- ggplot(subset(merged_candidate, merged_candidate$c_amount_sum > 1000000), aes(cand_nm, total_ratio, fill = party)) + 
   geom_bar(stat="identity") +
   xlab("Party") +
   ylab("Ratio") +
   ggtitle("2016 US Election Ratio of Total Contribution to Refunds Amount by Candidate") +
-  theme(axis.text.x=element_text(size=6),  legend.position = "none") +
+  theme(axis.text.x=element_text(angle=45, hjust=1)) +
   scale_y_continuous(breaks = seq(0, 110, 10))
 
-p2 <- ggplot(subset(merged_candidate, merged_candidate$c_amount_sum > 1000000), aes(cand_nm, count_ratio, fill = cand_nm)) + 
+p2 <- ggplot(subset(merged_candidate, merged_candidate$c_amount_sum > 1000000), aes(cand_nm, count_ratio, fill = party)) + 
   geom_bar(stat="identity") +
   xlab("Party") +
   ylab("Ratio") +
   ggtitle("2016 US Election Ratio of Number of Contribution to Refunds by Candidate")+
-  theme(axis.text.x=element_text(size=6),  legend.position = "none") +
+  theme(axis.text.x=element_text(angle=45, hjust=1)) +
   scale_y_continuous(breaks = seq(0, 200, 20))
 
 grid.arrange(p1,p2, ncol=1)
@@ -916,20 +917,20 @@ remove(mdata.by_gender, mdata.by_gender_refunds)
 ```{r echo=FALSE,warning=FALSE, message=FALSE, error=FALSE, Gender_Contributions}
 p1 <- ggplot(merged_gender, aes(gender, c_amount_sum, fill = gender)) + 
   geom_bar(stat="identity") +
-  xlab("Gender") +
+  xlab("Candidate Gender") +
   ylab("Total Contributions") +
   ggtitle("2016 US Election Total Contributions by Gender") +
   scale_y_continuous(breaks = seq(0, 70000000, 10000000))
 
 p2 <- ggplot(merged_gender, aes(gender, c_amount_mean, fill = gender)) + 
   geom_bar(stat="identity") +
-  xlab("Gender") +
+  xlab("Candidate Gender") +
   ylab("Mean Contribution") +
   ggtitle("2016 US Election Mean Contribution by Gender")
 
 p3 <- ggplot(merged_gender, aes(gender, c_amount_median, fill = gender)) + 
   geom_bar(stat="identity") +
-  xlab("Gender") +
+  xlab("Candidate Gender") +
   ylab("Median Contribution") +
   ggtitle("2016 US Election Median Contribution by Gender")
 
@@ -1344,19 +1345,23 @@ getting a higher amount, just a higher frequency of contributions.
 ```{r echo=FALSE, Plot_One}
 qplot(x = amount, y = ..count..,
       data = subset(mdata,  amount > 0), 
-      xlab = 'Amount Contributed',
+      xlab = 'Amount Contributed in US Dollars',
       ylab = 'Frequency',
       binwidth = 10, 
       geom = 'freqpoly', 
       color = party) + 
-  scale_x_continuous(lim = c(0, 200), breaks = seq(0, 200, 20)) 
+  scale_x_continuous(lim = c(0, 200), breaks = seq(0, 200, 20)) +
+  ggtitle("Frequency of Contributions by Party")
 ```
 
 #### Description One
 
-This plot was very interesting to me because I had assumed that all parties
-would raise a similar amount of money even if their frequencies would be 
-different at different amounts. 
+This Frequency Polygon shows the frequency of contribution amounts for each party.
+As can be seen, the Democratic party has significantly more contributions than 
+the Republican and Green Party at all contribution amounts.
+
+This plot was included because I had assumed that all parties raised a similar
+amount of money even if their frequencies would vary at different amounts. 
 
 What I found was the Democratic party overwhelmingly raised more money at all 
 stages. This really spurred me on to find why this happened which led to me 
@@ -1380,10 +1385,16 @@ ggplot() +
                           us.cities$country == "NY" & us.cities$pop > 100000),
             aes(x = long, y = lat, label = name),
             colour = "gold",
-            fontface="bold")
+            fontface="bold") +
+  ggtitle("Visualisation of Contributions by Zip to Party's")
 ```
 
 #### Description Two
+
+The silouhetter above shows the contributions made to each party based on their
+zipcode. It seems that contributors for Democrats were contributing from all 
+over the state whereas contributors for Repubicans were usually contributing 
+from the larger cities.
 
 I include this plot because it shows the contributions in NY state by party.
 This plot helped me understand where the rival parties were getting their
@@ -1405,13 +1416,23 @@ p2 <- ggplot(data = tc.amount_by_month,
   geom_line(aes(color = cand_nm)) + 
   scale_x_continuous(breaks = 1:21) +
   xlab("Month") +
-  ylab("Contribution Amount") +
+  ylab("Contribution Amount in US Dollars") +
   ggtitle("Monthly Total Contribution Amount") 
 
 grid.arrange(p1,p2, ncol = 1)
 ```
 
 #### Description Three
+
+These plots look at the contribution data over the 20 month period. 
+
+The first thing gleaned is that for a large part of the election, 
+Bernie Sanders was getting more contributions than Hilary Clinton, yet she was 
+still receiving more money which is in line with our earlier findings. 
+Another interesting find is that both Primary winners had fewer 
+contributions yet still won. However, this is not to say they had a smaller 
+contribution amount total (Hilary had higher contribution amounts, 
+Trump was self funding).
 
 This plot is important because it highlights the fact that for both the 
 Democrats and Republicans, the candidate who was getting a higher frequency
