@@ -93,11 +93,20 @@ remove(data, zips, parties)
 
 ## Univariate Plots Section
 
-```{r echo=FALSE, Univariate_Plots}
+### Summary of Data
+
+```{r echo=FALSE, Sum_of_data_1}
 dim(mdata)
 str(mdata)
+```
+
+The data has 13 columns (features) with 428646 rows. The structure of the data can be seen with the column names followed by the value types.
+
+```{r echo=FALSE, Sum_of_data_2}
 summary(mdata)
 ```
+
+The summary above shows some core details about the different columns such as frequency of value e.g. Hilary Clinton in cand_nm or Gender. We can see that the only state here is NY which is pertinent to this investigation.
 
 ### Distribution in State
 
