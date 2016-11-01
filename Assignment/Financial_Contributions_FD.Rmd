@@ -35,6 +35,11 @@ library(maps) # Needed for plotting NY State
 
 ```
 
+```{r global_options, include=FALSE}
+### Setting global options for the plots
+knitr::opts_chunk$set(echo=FALSE, warning=FALSE, message=FALSE, error=FALSE)
+```
+
 ```{r echo=FALSE, Load_the_Data}
 # Load the Data
 setwd("/Users/Sim/Desktop/Nanodegrees/Data Analyst/Task 4/Data Analysis with R/Assignment/")
@@ -695,7 +700,9 @@ mdata.by_party_refunds <- subset(mdata, mdata$amount < 0) %>%
             n = n()) %>%
   arrange(amount_sum)
 
-merged_party <- merge(mdata.by_party, mdata.by_party_refunds, by=c("party"), all.x = TRUE)
+merged_party <- merge(mdata.by_party,
+                      mdata.by_party_refunds, 
+                      by=c("party"), all.x = TRUE)
 
 # Renaming columns in the data to be more clear
 merged_party <- rename(merged_party, 
@@ -945,7 +952,8 @@ Based on the large variance in the amounts raised by candidates, I decided to
 only focus on candidates who had raised more than $1MM. 
 
 ```{r echo=FALSE, warning=FALSE, message=FALSE, error=FALSE, Candidate_Contributions_Means}
-p1 <- ggplot(subset(merged_candidate, merged_candidate$c_amount_sum > 1000000), aes(cand_nm, c_amount_mean, fill = party)) + 
+p1 <- ggplot(subset(merged_candidate, merged_candidate$c_amount_sum > 1000000),
+             aes(cand_nm, c_amount_mean, fill = party)) + 
   geom_bar(stat="identity") +
   xlab("Candidate") +
   ylab("Mean Contribution") + 
@@ -953,7 +961,8 @@ p1 <- ggplot(subset(merged_candidate, merged_candidate$c_amount_sum > 1000000), 
   theme(axis.text.x=element_text(angle=45, hjust=1)) +
   scale_y_continuous(breaks = seq(0, 1600, 200)) 
 
-p2 <- ggplot(subset(merged_candidate, merged_candidate$c_amount_sum > 1000000), aes(cand_nm, c_amount_median, fill = party)) + 
+p2 <- ggplot(subset(merged_candidate, merged_candidate$c_amount_sum > 1000000),
+             aes(cand_nm, c_amount_median, fill = party)) + 
   geom_bar(stat="identity") +
   xlab("Candidate") +
   ylab("Median Contribution") +
@@ -1090,7 +1099,8 @@ As we were focused on candidates with more than $1MM in contributions,
 I removed all candidates with less than that for this exploration.
 
 ```{r echo=FALSE,warning=FALSE, message=FALSE, error=FALSE, Cand_Ratio}
-p1 <- ggplot(subset(merged_candidate, merged_candidate$c_amount_sum > 1000000), aes(cand_nm, total_ratio, fill = party)) + 
+p1 <- ggplot(subset(merged_candidate, merged_candidate$c_amount_sum > 1000000), 
+             aes(cand_nm, total_ratio, fill = party)) + 
   geom_bar(stat="identity") +
   xlab("Party") +
   ylab("Ratio") +
@@ -1147,10 +1157,11 @@ this further to see if this was caused by them losing their election type.
 There was a strong correlation between the total amount contributed/refunded 
 and the number of contributors/refundees.
 
-### Contributions by Party and Candidate
+## Contributions by Party and Candidate
 
 ```{r echo=FALSE, warning=FALSE, message=FALSE, error=FALSE, Cntbtn_By_P_and_C}
-p1 <- ggplot(subset(merged_candidate, merged_candidate$party == "R"), aes(cand_nm, c_count, fill = cand_nm)) + 
+p1 <- ggplot(subset(merged_candidate, merged_candidate$party == "R"), 
+             aes(cand_nm, c_count, fill = cand_nm)) + 
   geom_bar(stat="identity") +
   xlab("Candidate") +
   ylab("Number of Contributions") +
@@ -1159,7 +1170,8 @@ p1 <- ggplot(subset(merged_candidate, merged_candidate$party == "R"), aes(cand_n
         axis.ticks.x=element_blank(),
         legend.position="bottom")
 
-p2 <- ggplot(subset(merged_candidate, merged_candidate$party == "D"), aes(cand_nm, c_count, fill = cand_nm)) + 
+p2 <- ggplot(subset(merged_candidate, merged_candidate$party == "D"), 
+             aes(cand_nm, c_count, fill = cand_nm)) + 
   geom_bar(stat="identity") +
   xlab("Candidate") +
   ylab("Number of Contributions") +
@@ -1170,7 +1182,8 @@ p2 <- ggplot(subset(merged_candidate, merged_candidate$party == "D"), aes(cand_n
 
 grid.arrange(p1,p2, ncol=1)
 
-p3 <- ggplot(subset(merged_candidate, merged_candidate$party == "R"), aes(cand_nm, c_amount_sum, fill = cand_nm)) + 
+p3 <- ggplot(subset(merged_candidate, merged_candidate$party == "R"), 
+             aes(cand_nm, c_amount_sum, fill = cand_nm)) + 
   geom_bar(stat="identity") +
   xlab("Candidate") +
   ylab("Total Contributions") +
@@ -1179,7 +1192,8 @@ p3 <- ggplot(subset(merged_candidate, merged_candidate$party == "R"), aes(cand_n
         axis.ticks.x=element_blank(),
         legend.position="bottom")
 
-p4 <- ggplot(subset(merged_candidate, merged_candidate$party == "D"), aes(cand_nm, c_amount_sum, fill = cand_nm)) + 
+p4 <- ggplot(subset(merged_candidate, merged_candidate$party == "D"), 
+             aes(cand_nm, c_amount_sum, fill = cand_nm)) + 
   geom_bar(stat="identity") +
   xlab("Candidate") +
   ylab("Total Contributions") +
@@ -1209,7 +1223,7 @@ For the democrats, the candidates with the highest number of contributions also
 had the highest contribution amount however, Hilary had 10% more  
 contributions than Bernie but had almost 400% greater contribution amount.
 
-### Contributions by Candidate and Time
+## Contributions by Candidate and Time
 
 I wanted to see how the contributions varied over time for the top 4 most 
 contributed candidates.
@@ -1337,7 +1351,7 @@ lost his election.
 # Final Plots and Summary
 
 ### Plot One
-```{r echo=FALSE, Plot_One}
+```{r echo=FALSE, warning=FALSE, message=FALSE, error=FALSE, Plot_One}
 qplot(x = amount, y = ..count..,
       data = subset(mdata,  amount > 0), 
       xlab = 'Amount Contributed in US Dollars',
@@ -1380,7 +1394,8 @@ ggplot() +
             aes(x = long, y = lat, label = name),
             colour = "gold",
             fontface="bold") +
-  ggtitle("Contributions by Zipcode to Party's")
+  ggtitle("Contributions by Zipcode to Party's") +
+  guides(colour = guide_legend(override.aes = list(alpha = 1)))
 ```
 
 #### Description Two

@@ -111,7 +111,7 @@ The summary above shows some core details about the different columns such as
 frequency of value e.g. Hilary Clinton in cand_nm or Gender. We can see that the
 only state here is NY which is pertinent to this investigation.
 
-### Distribution in State
+### Contributions by Zip
 
 ```{r echo=FALSE, warning=FALSE, Long_and_Lat}
 # Plotting the long and lat of the donations
@@ -157,7 +157,7 @@ ggplot() +
 Now you can see that the largest cities have the highest frequency
 of contributions.
 
-### Amount Contributed
+### Contributions by Amount
 
 The next plot is used to visualise the frequency of money being contributed. 
 
@@ -389,7 +389,7 @@ There are 428646 contributions in the dataset with 16 features.
 
 Observations:
 
-* Most contributions are coming from heavily populated areas such as cities.
+* Most contributions come from heavily populated areas such as cities.
 * The median contribution is $27 and max contribution is $4904860.51.
 * Contributions are spread almost equally across gender.
 * Most contributions go to the Democratic Party.
