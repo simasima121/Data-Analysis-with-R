@@ -567,6 +567,7 @@ ggplot() +
                  y = lat,
                  size = pop),
              colour = "green") +
+  labs(colour = "Amount", size = "Population") + 
   geom_text(data = subset(us.cities,
                           us.cities$country == "NY" & us.cities$pop > 100000),
             aes(x = long,
@@ -574,7 +575,7 @@ ggplot() +
                 label = name),
             colour = "gold",
             fontface="bold") +
-  scale_fill_gradientn(colours = colorRampPalette(c("blue", "red"))(100))
+  scale_colour_gradientn(colours = rainbow(70))
 ```
 
 As can be seen, most donations were of the same size and didnt vary much by
@@ -599,7 +600,8 @@ ggplot() +
                           us.cities$country == "NY" & us.cities$pop > 100000),
             aes(x = long, y = lat, label = name),
             colour = "gold",
-            fontface="bold")
+            fontface="bold") +
+  guides(colour = guide_legend(override.aes = list(alpha = 1)))
 ```
 
 From the silouhetter above, it seems that contributors for Democrats were 
@@ -908,7 +910,9 @@ mdata.by_candidate_refunds <- subset(mdata, mdata$amount < 0) %>%
             n = n()) %>%
   arrange(amount_sum)
 
-merged_candidate <- merge(mdata.by_candidate, mdata.by_candidate_refunds, by=c("cand_nm", "party"), all.x = TRUE)
+merged_candidate <- merge(mdata.by_candidate, 
+                          mdata.by_candidate_refunds, 
+                          by=c("cand_nm", "party"), all.x = TRUE)
 
 # Renaming columns in the data to be less verbose
 merged_candidate <- rename(merged_candidate,
@@ -1108,7 +1112,8 @@ p1 <- ggplot(subset(merged_candidate, merged_candidate$c_amount_sum > 1000000),
   theme(axis.text.x=element_text(angle=45, hjust=1)) +
   scale_y_continuous(breaks = seq(0, 110, 10))
 
-p2 <- ggplot(subset(merged_candidate, merged_candidate$c_amount_sum > 1000000), aes(cand_nm, count_ratio, fill = party)) + 
+p2 <- ggplot(subset(merged_candidate, merged_candidate$c_amount_sum > 1000000),
+             aes(cand_nm, count_ratio, fill = party)) + 
   geom_bar(stat="identity") +
   xlab("Party") +
   ylab("Ratio") +
@@ -1395,7 +1400,8 @@ ggplot() +
             colour = "gold",
             fontface="bold") +
   ggtitle("Contributions by Zipcode to Party's") +
-  guides(colour = guide_legend(override.aes = list(alpha = 1)))
+  guides(colour = guide_legend(override.aes = list(alpha = 1))) +
+  labs(color = "Party", size = "Population")
 ```
 
 #### Description Two
@@ -1418,7 +1424,8 @@ p1 <- ggplot(data = tc.amount_by_month,
   scale_x_continuous(breaks = 1:21) +
   xlab("Month") +
   ylab("Number of Contributions") +
-  ggtitle("Monthly Number of Contributions") 
+  ggtitle("Monthly Number of Contributions") +
+  labs(color = "Candidate Name")
 
 p2 <- ggplot(data = tc.amount_by_month,
        aes(x = s_m, y = amount_sum)) + 
@@ -1426,7 +1433,8 @@ p2 <- ggplot(data = tc.amount_by_month,
   scale_x_continuous(breaks = 1:21) +
   xlab("Month") +
   ylab("Contribution Amount in US Dollars") +
-  ggtitle("Monthly Total Contribution Amount") 
+  ggtitle("Monthly Total Contribution Amount") +
+  labs(color = "Candidate Name")
 
 grid.arrange(p1,p2, ncol = 1)
 ```
